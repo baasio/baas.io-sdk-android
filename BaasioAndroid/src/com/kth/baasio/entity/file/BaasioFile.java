@@ -28,6 +28,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.ParseException;
 import org.apache.http.util.EntityUtils;
 import org.codehaus.jackson.annotate.JsonIgnore;
+import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -49,7 +50,17 @@ public class BaasioFile extends BaasioBaseEntity {
     public final static String ENTITY_TYPE = "file";
 
     public final static String PROPERTY_FILENAME = "filename";
-
+    
+    public final static String PROPERTY_CONTENT_LENGTH = "content-length";
+    
+    public final static String PROPERTY_CONTENT_TYPE = "content-type";
+    
+    public final static String PROPERTY_CHECKSUM = "checksum";
+    
+    public final static String PROPERTY_ETAG = "etag";
+    
+    public final static String PROPERTY_SIZE = "size";
+    
     public BaasioFile() {
         super();
         setType(ENTITY_TYPE);
@@ -69,6 +80,11 @@ public class BaasioFile extends BaasioBaseEntity {
     public List<String> getPropertyNames() {
         List<String> properties = super.getPropertyNames();
         properties.add(PROPERTY_FILENAME);
+        properties.add(PROPERTY_CONTENT_LENGTH);
+        properties.add(PROPERTY_CONTENT_TYPE);
+        properties.add(PROPERTY_CHECKSUM);
+        properties.add(PROPERTY_ETAG);
+        properties.add(PROPERTY_SIZE);
         return properties;
     }
 
@@ -91,6 +107,106 @@ public class BaasioFile extends BaasioBaseEntity {
         JsonUtils.setStringProperty(properties, PROPERTY_FILENAME, filename);
     }
 
+    /**
+     * Get content length.
+     * 
+     * @return Content length
+     */
+    @JsonSerialize(include = NON_NULL)
+    @JsonProperty(PROPERTY_CONTENT_LENGTH)
+    public Long getContentLength() {
+    	return JsonUtils.getLongProperty(properties, PROPERTY_CONTENT_LENGTH);
+    }
+    
+    /**
+     * Set content length.
+     * 
+     * @param contentLength
+     */
+    public void setContentLength(long contentLength) {
+    	JsonUtils.setLongProperty(properties, PROPERTY_CONTENT_LENGTH, contentLength);
+    }
+    
+    /**
+     * Get content type.
+     * 
+     * @return Content type
+     */
+    @JsonSerialize(include = NON_NULL)
+    @JsonProperty(PROPERTY_CONTENT_TYPE)
+    public String getContentType() {
+    	return JsonUtils.getStringProperty(properties, PROPERTY_CONTENT_TYPE);
+    }
+    
+    /**
+     * Set content type.
+     * 
+     * @param contentLength
+     */
+    public void setContentType(String contentType) {
+    	JsonUtils.setStringProperty(properties, PROPERTY_CONTENT_TYPE, contentType);
+    }
+    
+    /**
+     * Get checksum.
+     * 
+     * @return Checksum
+     */
+    @JsonSerialize(include = NON_NULL)
+    @JsonProperty(PROPERTY_CHECKSUM)
+    public String getChecksum() {
+    	return JsonUtils.getStringProperty(properties, PROPERTY_CHECKSUM);
+    }
+    
+    /**
+     * Set checksum.
+     * 
+     * @param checksum
+     */
+    public void setChecksum(String checksum) {
+    	JsonUtils.setStringProperty(properties, PROPERTY_CHECKSUM, checksum);
+    }
+    
+    /**
+     * Get etag.
+     * 
+     * @return etag
+     */
+    @JsonSerialize(include = NON_NULL)
+    @JsonProperty(PROPERTY_ETAG)
+    public String getEtag() {
+    	return JsonUtils.getStringProperty(properties, PROPERTY_ETAG);
+    }
+    
+    /**
+     * Set etag.
+     * 
+     * @param etag
+     */
+    public void setEtag(String etag) {
+    	JsonUtils.setStringProperty(properties, PROPERTY_ETAG, etag);
+    }
+    
+    /**
+     * Get etag.
+     * 
+     * @return etag
+     */
+    @JsonSerialize(include = NON_NULL)
+    @JsonProperty(PROPERTY_SIZE)
+    public Long getSize() {
+    	return JsonUtils.getLongProperty(properties, PROPERTY_SIZE);
+    }
+    
+    /**
+     * Set etag.
+     * 
+     * @param etag
+     */
+    public void setSize(long size) {
+    	JsonUtils.setLongProperty(properties, PROPERTY_SIZE, size);
+    }
+    
     private static String getMimeType(File file) {
         String url = file.getAbsolutePath();
 
