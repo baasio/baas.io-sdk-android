@@ -222,7 +222,7 @@ public class Baas {
      */
     public BaasioDeviceAsyncTask setGcmEnabled(Context context, String tags,
             BaasioDeviceCallback callback, String... gcmSenderId) {
-        if (!ObjectUtils.isEmpty(gcmSenderId)) {
+        if (!ObjectUtils.isEmpty(gcmSenderId) && !ObjectUtils.isEmpty(gcmSenderId[0])) {
             this.gcmSenderId = gcmSenderId;
 
             gcmEnabled = true;
