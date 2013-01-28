@@ -235,11 +235,11 @@ public class BaasioPush {
                             if (curTags.equals(newTags)) {
                                 throw new BaasioException(BaasioError.ERROR_GCM_ALREADY_REGISTERED);
                             } else {
-                                LOGD(TAG,
+                            	LogUtils.LOGV(TAG,
                                         "Already registered on the GCM server. But, need to register again because tags changed.");
                             }
                         } else {
-                            LOGD(TAG,
+                        	LogUtils.LOGV(TAG,
                                     "Already registered on the GCM server. But, need to register again because username changed.");
                         }
                     }

@@ -499,7 +499,7 @@ public class BaasioFile extends BaasioBaseEntity {
                             }
 
                             if (!ObjectUtils.isEmpty(body)) {
-                                LogUtils.LOGI(TAG, "Client.httpRequest(): reponse body: " + body);
+                                LogUtils.LOGV(TAG, "Client.httpRequest(): reponse body: " + body);
 
                                 BaasioResponse response = JsonUtils.parse(body,
                                         BaasioResponse.class);
@@ -535,7 +535,7 @@ public class BaasioFile extends BaasioBaseEntity {
 
                             if (HttpStatus.UNAUTHORIZED.toString().equals(
                                     baasioError.getStatusCode())) {
-                                LogUtils.LOGE(TAG, "Need Login");
+                                LogUtils.LOGV(TAG, "Need Login");
                                 Baas.io().fireUnauthorized();
                             }
                             throw baasioError;
@@ -622,7 +622,7 @@ public class BaasioFile extends BaasioBaseEntity {
                             }
 
                             if (!ObjectUtils.isEmpty(body)) {
-                                LogUtils.LOGI(TAG, "Client.httpRequest(): reponse body: " + body);
+                                LogUtils.LOGV(TAG, "Client.httpRequest(): reponse body: " + body);
 
                                 BaasioResponse response = JsonUtils.parse(body,
                                         BaasioResponse.class);
@@ -658,7 +658,7 @@ public class BaasioFile extends BaasioBaseEntity {
 
                             if (HttpStatus.UNAUTHORIZED.toString().equals(
                                     baasioError.getStatusCode())) {
-                                LogUtils.LOGE(TAG, "Need Login");
+                                LogUtils.LOGV(TAG, "Need Login");
                                 Baas.io().fireUnauthorized();
                             }
                             throw baasioError;
@@ -815,7 +815,7 @@ public class BaasioFile extends BaasioBaseEntity {
 
                             if (HttpStatus.UNAUTHORIZED.toString().equals(
                                     baasioError.getStatusCode())) {
-                                LogUtils.LOGE(TAG, "Need Login");
+                            	LogUtils.LOGV(TAG, "Need Login");
                                 Baas.io().fireUnauthorized();
                             }
                             throw baasioError;

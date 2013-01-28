@@ -604,7 +604,7 @@ public class BaasioUser extends BaasioBaseEntity {
         BaasioUser current = Baas.io().getSignedInUser();
         if (!ObjectUtils.isEmpty(current)) {
             if (!current.getUsername().equals(getUsername())) {
-                LogUtils.LOGW(TAG, "Warning!! You try to delete a user who's not you.");
+            	LogUtils.LOGV(TAG, "Warning!! You try to delete a user who's not you.");
             }
         }
 
