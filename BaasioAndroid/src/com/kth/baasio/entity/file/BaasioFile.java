@@ -121,7 +121,7 @@ public class BaasioFile extends BaasioBaseEntity {
     /**
      * Set content length.
      * 
-     * @param contentLength
+     * @param contentLength content-length
      */
     public void setContentLength(long contentLength) {
     	JsonUtils.setLongProperty(properties, PROPERTY_CONTENT_LENGTH, contentLength);
@@ -141,7 +141,7 @@ public class BaasioFile extends BaasioBaseEntity {
     /**
      * Set content type.
      * 
-     * @param contentLength
+     * @param contentType content-type
      */
     public void setContentType(String contentType) {
     	JsonUtils.setStringProperty(properties, PROPERTY_CONTENT_TYPE, contentType);
@@ -161,7 +161,7 @@ public class BaasioFile extends BaasioBaseEntity {
     /**
      * Set checksum.
      * 
-     * @param checksum
+     * @param checksum Checksum
      */
     public void setChecksum(String checksum) {
     	JsonUtils.setStringProperty(properties, PROPERTY_CHECKSUM, checksum);
@@ -181,7 +181,7 @@ public class BaasioFile extends BaasioBaseEntity {
     /**
      * Set etag.
      * 
-     * @param etag
+     * @param etag ETAG
      */
     public void setEtag(String etag) {
     	JsonUtils.setStringProperty(properties, PROPERTY_ETAG, etag);
@@ -201,7 +201,7 @@ public class BaasioFile extends BaasioBaseEntity {
     /**
      * Set etag.
      * 
-     * @param etag
+     * @param size Size
      */
     public void setSize(long size) {
     	JsonUtils.setLongProperty(properties, PROPERTY_SIZE, size);
