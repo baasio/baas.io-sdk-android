@@ -342,7 +342,7 @@ public class BaasioUser extends BaasioBaseEntity {
             properties.put("password", password);
         }
 
-        BaasioResponse response = Baas.io().apiRequest(HttpMethod.POST, properties, null,
+        BaasioResponse response = Baas.io().apiRequest(HttpMethod.POST, null, properties,
                 BaasioUser.ENTITY_TYPE);
 
         if (response != null) {
@@ -604,7 +604,7 @@ public class BaasioUser extends BaasioBaseEntity {
         BaasioUser current = Baas.io().getSignedInUser();
         if (!ObjectUtils.isEmpty(current)) {
             if (!current.getUsername().equals(getUsername())) {
-            	LogUtils.LOGV(TAG, "Warning!! You try to delete a user who's not you.");
+                LogUtils.LOGV(TAG, "Warning!! You try to delete a user who's not you.");
             }
         }
 
