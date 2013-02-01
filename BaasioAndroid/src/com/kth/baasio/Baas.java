@@ -247,7 +247,7 @@ public class Baas {
             try {
                 GCMRegistrar.onDestroy(context);
             } catch (Exception e) {
-            	LogUtils.LOGV(TAG, "GCMRegistrar.onDestroy failed", e);
+                LogUtils.LOGV(TAG, "GCMRegistrar.onDestroy failed", e);
             }
         }
     }
@@ -292,14 +292,14 @@ public class Baas {
         } catch (ResourceAccessException e) {
             String message = e.getMessage();
             if (message != null && message.contains("No authentication challenges found")) {
-            	LogUtils.LOGV(TAG, "Need Login");
+                LogUtils.LOGV(TAG, "Need Login");
 
                 fireUnauthorized();
             }
             throw new BaasioException(e);
         } catch (HttpClientErrorException e) {
             if (e.getStatusCode().equals(HttpStatus.UNAUTHORIZED)) {
-            	LogUtils.LOGV(TAG, "Need Login");
+                LogUtils.LOGV(TAG, "Need Login");
 
                 fireUnauthorized();
             }
@@ -341,14 +341,14 @@ public class Baas {
         } catch (ResourceAccessException e) {
             String message = e.getMessage();
             if (message != null && message.contains("No authentication challenges found")) {
-            	LogUtils.LOGV(TAG, "Need Login");
+                LogUtils.LOGV(TAG, "Need Login");
 
                 fireUnauthorized();
             }
             throw new BaasioException(e);
         } catch (HttpClientErrorException e) {
             if (e.getStatusCode().equals(HttpStatus.UNAUTHORIZED)) {
-            	LogUtils.LOGV(TAG, "Need Login");
+                LogUtils.LOGV(TAG, "Need Login");
 
                 fireUnauthorized();
             }
@@ -382,7 +382,7 @@ public class Baas {
 
         String url = UrlUtils.path(baasioUrl, newSegments);
 
-        LogUtils.LOGV(TAG, "Client.httpRequest(): url: " + url);
+        LogUtils.LOGV(TAG, "Client.httpRequest(): " + method + " url: " + url);
 
         HttpClient client = HttpUtils.getNewHttpClient();
 
@@ -453,7 +453,7 @@ public class Baas {
 
         String url = UrlUtils.path(baasioUrl, newSegments);
 
-        LogUtils.LOGV(TAG, "Client.httpRequest(): url: " + url);
+        LogUtils.LOGV(TAG, "Client.httpRequest(): " + method + " url: " + url);
 
         HttpClient client = HttpUtils.getNewHttpClient();
 
@@ -523,16 +523,16 @@ public class Baas {
         } else {
             requestEntity = new HttpEntity<Object>(requestHeaders);
         }
-        LogUtils.LOGV(TAG, "Client.httpRequest(): url: " + url);
+        LogUtils.LOGV(TAG, "Client.httpRequest(): " + method + " url: " + url);
 
         ResponseEntity<T> responseEntity = restTemplate.exchange(url, method, requestEntity, cls);
 
         if (responseEntity != null) {
             if (responseEntity.getBody() != null) {
-            	LogUtils.LOGV(TAG, "Client.httpRequest(): reponse body: "
+                LogUtils.LOGV(TAG, "Client.httpRequest(): reponse body: "
                         + responseEntity.getBody().toString());
             } else {
-            	LogUtils.LOGV(TAG,
+                LogUtils.LOGV(TAG,
                         "Client.httpRequest(): reponse body is null: " + responseEntity.toString());
             }
         }

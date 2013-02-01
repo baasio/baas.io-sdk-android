@@ -66,4 +66,19 @@ import java.io.UnsupportedEncodingException;
     private static void append(ByteArrayBuffer buf, byte[] data) {
         buf.append(data, 0, data.length);
     }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+
+        builder.append("\n");
+        builder.append(headersProvider.getContentDisposition());
+        builder.append("\n");
+        builder.append(headersProvider.getContentType());
+        builder.append("\n");
+        builder.append(headersProvider.getContentTransferEncoding());
+        builder.append("\n");
+
+        return builder.toString();
+    }
 }

@@ -16,6 +16,8 @@ public final class StringPart extends BasePart {
 
     private final byte[] valueBytes;
 
+    private final String charset;
+
     /**
      * @param name String - name of parameter (may not be <code>null</code>).
      * @param value String - value of parameter (may not be <code>null</code>).
@@ -39,10 +41,10 @@ public final class StringPart extends BasePart {
         if (charset == null) {
             charset = HTTP.DEFAULT_CONTENT_CHARSET;
         }
-        final String partCharset = charset;
+        this.charset = charset;
 
         try {
-            this.valueBytes = value.getBytes(partCharset);
+            this.valueBytes = value.getBytes(this.charset);
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e);
         }
@@ -83,5 +85,19 @@ public final class StringPart extends BasePart {
         out.write(getHeader(boundary));
         out.write(valueBytes);
         out.write(CRLF);
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+
+        builder.append(super.toString());
+        try {
+            builder.append(new String(valueBytes, this.charset));
+        } catch (UnsupportedEncodingException e) {
+            builder.append(new String(valueBytes));
+        }
+
+        return builder.toString();
     }
 }

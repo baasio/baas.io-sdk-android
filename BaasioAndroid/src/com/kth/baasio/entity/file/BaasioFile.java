@@ -5,6 +5,7 @@ import static com.kth.common.utils.LogUtils.makeLogTag;
 import static org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion.NON_NULL;
 
 import com.kth.baasio.Baas;
+import com.kth.baasio.BuildConfig;
 import com.kth.baasio.callback.BaasioAsyncTask;
 import com.kth.baasio.callback.BaasioCallback;
 import com.kth.baasio.callback.BaasioDownloadAsyncTask;
@@ -50,17 +51,17 @@ public class BaasioFile extends BaasioBaseEntity {
     public final static String ENTITY_TYPE = "file";
 
     public final static String PROPERTY_FILENAME = "filename";
-    
+
     public final static String PROPERTY_CONTENT_LENGTH = "content-length";
-    
+
     public final static String PROPERTY_CONTENT_TYPE = "content-type";
-    
+
     public final static String PROPERTY_CHECKSUM = "checksum";
-    
+
     public final static String PROPERTY_ETAG = "etag";
-    
+
     public final static String PROPERTY_SIZE = "size";
-    
+
     public BaasioFile() {
         super();
         setType(ENTITY_TYPE);
@@ -115,18 +116,18 @@ public class BaasioFile extends BaasioBaseEntity {
     @JsonSerialize(include = NON_NULL)
     @JsonProperty(PROPERTY_CONTENT_LENGTH)
     public Long getContentLength() {
-    	return JsonUtils.getLongProperty(properties, PROPERTY_CONTENT_LENGTH);
+        return JsonUtils.getLongProperty(properties, PROPERTY_CONTENT_LENGTH);
     }
-    
+
     /**
      * Set content length.
      * 
      * @param contentLength content-length
      */
     public void setContentLength(long contentLength) {
-    	JsonUtils.setLongProperty(properties, PROPERTY_CONTENT_LENGTH, contentLength);
+        JsonUtils.setLongProperty(properties, PROPERTY_CONTENT_LENGTH, contentLength);
     }
-    
+
     /**
      * Get content type.
      * 
@@ -135,18 +136,18 @@ public class BaasioFile extends BaasioBaseEntity {
     @JsonSerialize(include = NON_NULL)
     @JsonProperty(PROPERTY_CONTENT_TYPE)
     public String getContentType() {
-    	return JsonUtils.getStringProperty(properties, PROPERTY_CONTENT_TYPE);
+        return JsonUtils.getStringProperty(properties, PROPERTY_CONTENT_TYPE);
     }
-    
+
     /**
      * Set content type.
      * 
      * @param contentType content-type
      */
     public void setContentType(String contentType) {
-    	JsonUtils.setStringProperty(properties, PROPERTY_CONTENT_TYPE, contentType);
+        JsonUtils.setStringProperty(properties, PROPERTY_CONTENT_TYPE, contentType);
     }
-    
+
     /**
      * Get checksum.
      * 
@@ -155,18 +156,18 @@ public class BaasioFile extends BaasioBaseEntity {
     @JsonSerialize(include = NON_NULL)
     @JsonProperty(PROPERTY_CHECKSUM)
     public String getChecksum() {
-    	return JsonUtils.getStringProperty(properties, PROPERTY_CHECKSUM);
+        return JsonUtils.getStringProperty(properties, PROPERTY_CHECKSUM);
     }
-    
+
     /**
      * Set checksum.
      * 
      * @param checksum Checksum
      */
     public void setChecksum(String checksum) {
-    	JsonUtils.setStringProperty(properties, PROPERTY_CHECKSUM, checksum);
+        JsonUtils.setStringProperty(properties, PROPERTY_CHECKSUM, checksum);
     }
-    
+
     /**
      * Get etag.
      * 
@@ -175,18 +176,18 @@ public class BaasioFile extends BaasioBaseEntity {
     @JsonSerialize(include = NON_NULL)
     @JsonProperty(PROPERTY_ETAG)
     public String getEtag() {
-    	return JsonUtils.getStringProperty(properties, PROPERTY_ETAG);
+        return JsonUtils.getStringProperty(properties, PROPERTY_ETAG);
     }
-    
+
     /**
      * Set etag.
      * 
      * @param etag ETAG
      */
     public void setEtag(String etag) {
-    	JsonUtils.setStringProperty(properties, PROPERTY_ETAG, etag);
+        JsonUtils.setStringProperty(properties, PROPERTY_ETAG, etag);
     }
-    
+
     /**
      * Get etag.
      * 
@@ -195,18 +196,18 @@ public class BaasioFile extends BaasioBaseEntity {
     @JsonSerialize(include = NON_NULL)
     @JsonProperty(PROPERTY_SIZE)
     public Long getSize() {
-    	return JsonUtils.getLongProperty(properties, PROPERTY_SIZE);
+        return JsonUtils.getLongProperty(properties, PROPERTY_SIZE);
     }
-    
+
     /**
      * Set etag.
      * 
      * @param size Size
      */
     public void setSize(long size) {
-    	JsonUtils.setLongProperty(properties, PROPERTY_SIZE, size);
+        JsonUtils.setLongProperty(properties, PROPERTY_SIZE, size);
     }
-    
+
     private static String getMimeType(File file) {
         String url = file.getAbsolutePath();
 
@@ -462,6 +463,10 @@ public class BaasioFile extends BaasioBaseEntity {
                 StringPart stringPart = new StringPart("entity",
                         JsonUtils.toJsonString(BaasioFile.this), "UTF-8");
 
+                if (BuildConfig.DEBUG) {
+                    LogUtils.LOGV(TAG, "StringPart:\n" + stringPart.toString());
+                }
+
                 final long fileSize = file.length();
                 filePart = new FilePart("file", file, destFileName, getMimeType(file),
                         new BaasioProgressListener() {
@@ -475,6 +480,10 @@ public class BaasioFile extends BaasioBaseEntity {
                                 }
                             }
                         });
+
+                if (BuildConfig.DEBUG) {
+                    LogUtils.LOGV(TAG, "FilePart:\n" + filePart.toString());
+                }
 
                 MultipartEntity multipartEntity = new MultipartEntity();
                 multipartEntity.addPart(stringPart);
@@ -586,6 +595,10 @@ public class BaasioFile extends BaasioBaseEntity {
                 StringPart stringPart = new StringPart("entity",
                         JsonUtils.toJsonString(BaasioFile.this), "UTF-8");
 
+                if (BuildConfig.DEBUG) {
+                    LogUtils.LOGV(TAG, "StringPart:\n" + stringPart.toString());
+                }
+
                 final long fileSize = file.length();
                 filePart = new FilePart("file", file, destFileName, getMimeType(file),
                         new BaasioProgressListener() {
@@ -598,6 +611,10 @@ public class BaasioFile extends BaasioBaseEntity {
                                 }
                             }
                         });
+
+                if (BuildConfig.DEBUG) {
+                    LogUtils.LOGV(TAG, "FilePart:\n" + filePart.toString());
+                }
 
                 MultipartEntity multipartEntity = new MultipartEntity();
                 multipartEntity.addPart(stringPart);
@@ -815,7 +832,7 @@ public class BaasioFile extends BaasioBaseEntity {
 
                             if (HttpStatus.UNAUTHORIZED.toString().equals(
                                     baasioError.getStatusCode())) {
-                            	LogUtils.LOGV(TAG, "Need Login");
+                                LogUtils.LOGV(TAG, "Need Login");
                                 Baas.io().fireUnauthorized();
                             }
                             throw baasioError;
