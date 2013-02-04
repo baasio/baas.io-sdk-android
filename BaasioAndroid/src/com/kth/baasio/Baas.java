@@ -196,6 +196,10 @@ public class Baas {
         assertValidBaasioId();
         assertValidApplicationId();
 
+        if (!baasioUrl.startsWith("http://") && !baasioUrl.startsWith("https://")) {
+            throw new IllegalArgumentException(BaasioError.ERROR_WRONG_BAASIO_URL);
+        }
+
         String accessToken = BaasioPreferences.getAccessToken(context);
         if (!ObjectUtils.isEmpty(accessToken)) {
             setAccessToken(accessToken);
@@ -451,7 +455,16 @@ public class Baas {
 
         String[] newSegments = list.toArray(new String[list.size()]);
 
-        String url = UrlUtils.path(baasioUrl, newSegments);
+        String fileDownloadUrl;
+        if (baasioUrl.startsWith("http://")) {
+            fileDownloadUrl = baasioUrl.replace("http://", "http://blob.");
+        } else if (baasioUrl.startsWith("https://")) {
+            fileDownloadUrl = baasioUrl.replace("https://", "https://blob.");
+        } else {
+            throw new IllegalArgumentException(BaasioError.ERROR_WRONG_BAASIO_URL);
+        }
+
+        String url = UrlUtils.path(fileDownloadUrl, newSegments);
 
         LogUtils.LOGV(TAG, "Client.httpRequest(): " + method + " url: " + url);
 

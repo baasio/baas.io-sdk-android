@@ -712,12 +712,12 @@ public class BaasioUser extends BaasioBaseEntity {
     }
 
     /**
-     * Connect to a entity with relationship
+     * Disconnect to a entity with relationship
      * 
      * @param relationship Relationship name
      * @param targetType Target entity type
      * @param targetUuid Target entity uuid or name
-     * @return Connected user entity with class type
+     * @return Disconnected user entity with class type
      */
     public BaasioUser disconnect(String relationship, String targetType, String targetUuid)
             throws BaasioException {
@@ -728,7 +728,7 @@ public class BaasioUser extends BaasioBaseEntity {
     }
 
     /**
-     * Connect to a entity with relationship. Executes asynchronously in
+     * Disconnect to a entity with relationship. Executes asynchronously in
      * background and the callbacks are called in the UI thread.
      * 
      * @param relationship Relationship name
@@ -747,11 +747,11 @@ public class BaasioUser extends BaasioBaseEntity {
     }
 
     /**
-     * Connect to a entity with relationship
+     * Disconnect to a entity with relationship
      * 
      * @param relationship Relationship name
      * @param target Target entity
-     * @return Connected user entity with class type
+     * @return Disconnected user entity with class type
      */
     public <T extends BaasioBaseEntity> BaasioUser disconnect(String relationship, T target)
             throws BaasioException {
@@ -762,7 +762,7 @@ public class BaasioUser extends BaasioBaseEntity {
     }
 
     /**
-     * Connect to a entity with relationship. Executes asynchronously in
+     * Disconnect to a entity with relationship. Executes asynchronously in
      * background and the callbacks are called in the UI thread.
      * 
      * @param relationship Relationship name

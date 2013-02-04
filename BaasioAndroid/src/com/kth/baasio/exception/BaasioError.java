@@ -38,6 +38,8 @@ public final class BaasioError {
 
     public static final String ERROR_MISSING_FACEBOOK_TOKEN = "Missing facebook access token";
 
+    public static final String ERROR_WRONG_BAASIO_URL = "baas.io URL must start with http:// or https://";
+
     public static final String ERROR_MISSING_LOCAL_FILE_PATH = "Missing local file path";
 
     public static final String ERROR_MISSING_LOCAL_FILE_NAME = "Missing local file name";
@@ -53,6 +55,10 @@ public final class BaasioError {
     public static final String ERROR_GCM_ALREADY_UNREGISTERED = "GCM is already unregistered";
 
     public static final String ERROR_GCM_MISSING_REGID = "Missing device token(regId)";
+
+    public static final String ERROR_GCM_TAG_LENGTH_EXCEED = "Max tag length is 12";
+
+    public static final String ERROR_GCM_TAG_PATTERN_MISS_MATCHED = "Tags only allowed a-z, A-Z, 0-9, hyphen, underscore characters";// "^[a-zA-Z0-9-_]*$"
 
     public static final String ERROR_FILE_IS_NOT_EXIST = "File is not exist.";
 

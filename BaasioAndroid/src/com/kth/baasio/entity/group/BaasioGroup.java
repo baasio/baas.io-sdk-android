@@ -378,12 +378,12 @@ public class BaasioGroup extends BaasioBaseEntity {
     }
 
     /**
-     * Connect to a entity with relationship
+     * Disconnect to a entity with relationship
      * 
      * @param relationship Relationship name
      * @param targetType Target entity type
      * @param targetUuid Target entity uuid or name
-     * @return Connected group entity with class type
+     * @return Disconnected group entity with class type
      */
     public BaasioGroup disconnect(String relationship, String targetType, String targetUuid)
             throws BaasioException {
@@ -394,7 +394,7 @@ public class BaasioGroup extends BaasioBaseEntity {
     }
 
     /**
-     * Connect to a entity with relationship. Executes asynchronously in
+     * Disconnect to a entity with relationship. Executes asynchronously in
      * background and the callbacks are called in the UI thread.
      * 
      * @param relationship Relationship name
@@ -413,11 +413,11 @@ public class BaasioGroup extends BaasioBaseEntity {
     }
 
     /**
-     * Connect to a entity with relationship
+     * Disconnect to a entity with relationship
      * 
      * @param relationship Relationship name
      * @param target Target entity
-     * @return Connected group entity with class type
+     * @return Disconnected group entity with class type
      */
     public <T extends BaasioBaseEntity> BaasioGroup disconnect(String relationship, T target)
             throws BaasioException {
@@ -428,7 +428,7 @@ public class BaasioGroup extends BaasioBaseEntity {
     }
 
     /**
-     * Connect to a entity with relationship. Executes asynchronously in
+     * Disconnect to a entity with relationship. Executes asynchronously in
      * background and the callbacks are called in the UI thread.
      * 
      * @param relationship Relationship name

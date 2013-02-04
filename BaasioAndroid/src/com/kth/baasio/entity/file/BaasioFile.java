@@ -436,12 +436,12 @@ public class BaasioFile extends BaasioBaseEntity {
     }
 
     /**
-     * Connect to a entity with relationship
+     * Disconnect to a entity with relationship
      * 
      * @param relationship Relationship name
      * @param targetType Target entity type
      * @param targetUuid Target entity uuid or name
-     * @return Connected file entity with class type
+     * @return Disconnected file entity with class type
      */
     public BaasioFile disconnect(String relationship, String targetType, String targetUuid)
             throws BaasioException {
@@ -452,7 +452,7 @@ public class BaasioFile extends BaasioBaseEntity {
     }
 
     /**
-     * Connect to a entity with relationship. Executes asynchronously in
+     * Disconnect to a entity with relationship. Executes asynchronously in
      * background and the callbacks are called in the UI thread.
      * 
      * @param relationship Relationship name
@@ -471,11 +471,11 @@ public class BaasioFile extends BaasioBaseEntity {
     }
 
     /**
-     * Connect to a entity with relationship
+     * Disconnect to a entity with relationship
      * 
      * @param relationship Relationship name
      * @param target Target entity
-     * @return Connected file entity with class type
+     * @return Disconnected file entity with class type
      */
     public <T extends BaasioBaseEntity> BaasioFile disconnect(String relationship, T target)
             throws BaasioException {
@@ -486,7 +486,7 @@ public class BaasioFile extends BaasioBaseEntity {
     }
 
     /**
-     * Connect to a entity with relationship. Executes asynchronously in
+     * Disconnect to a entity with relationship. Executes asynchronously in
      * background and the callbacks are called in the UI thread.
      * 
      * @param relationship Relationship name
@@ -817,7 +817,7 @@ public class BaasioFile extends BaasioBaseEntity {
                 HttpResponse httpResponse = null;
 
                 httpResponse = Baas.io().downloadFileRequest(HttpMethod.GET, "files",
-                        getUuid().toString(), "data");
+                        getUuid().toString());
 
                 if (httpResponse != null) {
                     if (httpResponse.getStatusLine() != null) {

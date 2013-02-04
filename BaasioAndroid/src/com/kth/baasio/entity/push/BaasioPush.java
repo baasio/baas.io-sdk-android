@@ -1,8 +1,6 @@
 
 package com.kth.baasio.entity.push;
 
-import static com.kth.common.utils.LogUtils.LOGD;
-
 import com.google.android.gcm.GCMRegistrar;
 import com.kth.baasio.Baas;
 import com.kth.baasio.BuildConfig;
@@ -28,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Random;
+import java.util.regex.Pattern;
 
 public class BaasioPush {
     private static final String TAG = LogUtils.makeLogTag(BaasioPush.class);
@@ -37,6 +36,8 @@ public class BaasioPush {
     private static final int BACKOFF_MILLIS = 2000;
 
     private static final Random sRandom = new Random();
+
+    private static final String TAG_REGEXP = "^[a-zA-Z0-9-_]*$";
 
     static List<String> getTagList(String tagString) {
         List<String> result = new ArrayList<String>();
@@ -181,6 +182,18 @@ public class BaasioPush {
             GCMRegistrar.checkManifest(context);
         }
 
+        List<String> tagList = getTagList(tags);
+        for (String tag : tagList) {
+            if (tag.length() > 12) {
+                throw new IllegalArgumentException(BaasioError.ERROR_GCM_TAG_LENGTH_EXCEED);
+            }
+
+            Pattern pattern = Pattern.compile(TAG_REGEXP);
+            if (!pattern.matcher(tag).matches()) {
+                throw new IllegalArgumentException(BaasioError.ERROR_GCM_TAG_PATTERN_MISS_MATCHED);
+            }
+        }
+
         BaasioPreferences.setNeedRegisteredTags(context, tags);
 
         return registerInBackground(context, callback);
@@ -235,11 +248,11 @@ public class BaasioPush {
                             if (curTags.equals(newTags)) {
                                 throw new BaasioException(BaasioError.ERROR_GCM_ALREADY_REGISTERED);
                             } else {
-                            	LogUtils.LOGV(TAG,
+                                LogUtils.LOGV(TAG,
                                         "Already registered on the GCM server. But, need to register again because tags changed.");
                             }
                         } else {
-                        	LogUtils.LOGV(TAG,
+                            LogUtils.LOGV(TAG,
                                     "Already registered on the GCM server. But, need to register again because username changed.");
                         }
                     }
