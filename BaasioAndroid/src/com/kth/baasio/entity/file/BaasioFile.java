@@ -436,6 +436,74 @@ public class BaasioFile extends BaasioBaseEntity {
     }
 
     /**
+     * Connect to a entity with relationship
+     * 
+     * @param relationship Relationship name
+     * @param targetType Target entity type
+     * @param targetUuid Target entity uuid or name
+     * @return Connected file entity with class type
+     */
+    public BaasioFile disconnect(String relationship, String targetType, String targetUuid)
+            throws BaasioException {
+
+        BaasioBaseEntity entity = BaasioBaseEntity.disconnect(getType(), getUniqueKey(),
+                relationship, targetType, targetUuid);
+        return entity.toType(BaasioFile.class);
+    }
+
+    /**
+     * Connect to a entity with relationship. Executes asynchronously in
+     * background and the callbacks are called in the UI thread.
+     * 
+     * @param relationship Relationship name
+     * @param targetType Target entity type
+     * @param targetUuid Target entity uuid or name
+     * @param callback Result callback
+     */
+    public void disconnectInBackground(final String relationship, final String targetType,
+            final String targetUuid, final BaasioCallback<BaasioFile> callback) {
+        (new BaasioAsyncTask<BaasioFile>(callback) {
+            @Override
+            public BaasioFile doTask() throws BaasioException {
+                return disconnect(relationship, targetType, targetUuid);
+            }
+        }).execute();
+    }
+
+    /**
+     * Connect to a entity with relationship
+     * 
+     * @param relationship Relationship name
+     * @param target Target entity
+     * @return Connected file entity with class type
+     */
+    public <T extends BaasioBaseEntity> BaasioFile disconnect(String relationship, T target)
+            throws BaasioException {
+
+        BaasioBaseEntity entity = BaasioBaseEntity.disconnect(getType(), getUniqueKey(),
+                relationship, target.getType(), target.getUniqueKey());
+        return entity.toType(BaasioFile.class);
+    }
+
+    /**
+     * Connect to a entity with relationship. Executes asynchronously in
+     * background and the callbacks are called in the UI thread.
+     * 
+     * @param relationship Relationship name
+     * @param target Target entity
+     * @param callback Result callback
+     */
+    public <T extends BaasioBaseEntity> void disconnectInBackground(final String relationship,
+            final T target, final BaasioCallback<BaasioFile> callback) {
+        (new BaasioAsyncTask<BaasioFile>(callback) {
+            @Override
+            public BaasioFile doTask() throws BaasioException {
+                return disconnect(relationship, target);
+            }
+        }).execute();
+    }
+
+    /**
      * Create a file entity and upload file content to baas.io. Executes
      * asynchronously in background and the callbacks are called in the UI
      * thread.

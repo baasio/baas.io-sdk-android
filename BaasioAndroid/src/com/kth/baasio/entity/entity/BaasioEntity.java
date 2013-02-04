@@ -236,4 +236,72 @@ public class BaasioEntity extends BaasioBaseEntity {
             }
         }).execute();
     }
+
+    /**
+     * Connect to a entity with relationship
+     * 
+     * @param relationship Relationship name
+     * @param targetType Target entity type
+     * @param targetUuid Target entity uuid or name
+     * @return Connected entity with class type
+     */
+    public BaasioEntity disconnect(String relationship, String targetType, String targetUuid)
+            throws BaasioException {
+
+        BaasioBaseEntity entity = BaasioBaseEntity.disconnect(getType(), getUniqueKey(),
+                relationship, targetType, targetUuid);
+        return entity.toType(BaasioEntity.class);
+    }
+
+    /**
+     * Connect to a entity with relationship. Executes asynchronously in
+     * background and the callbacks are called in the UI thread.
+     * 
+     * @param relationship Relationship name
+     * @param targetType Target entity type
+     * @param targetUuid Target entity uuid or name
+     * @param callback Result callback
+     */
+    public void disconnectInBackground(final String relationship, final String targetType,
+            final String targetUuid, final BaasioCallback<BaasioEntity> callback) {
+        (new BaasioAsyncTask<BaasioEntity>(callback) {
+            @Override
+            public BaasioEntity doTask() throws BaasioException {
+                return disconnect(relationship, targetType, targetUuid);
+            }
+        }).execute();
+    }
+
+    /**
+     * Connect to a entity with relationship
+     * 
+     * @param relationship Relationship name
+     * @param target Target entity
+     * @return Connected entity with class type
+     */
+    public <T extends BaasioBaseEntity> BaasioEntity disconnect(String relationship, T target)
+            throws BaasioException {
+
+        BaasioBaseEntity entity = BaasioBaseEntity.disconnect(getType(), getUniqueKey(),
+                relationship, target.getType(), target.getUniqueKey());
+        return entity.toType(BaasioEntity.class);
+    }
+
+    /**
+     * Connect to a entity with relationship. Executes asynchronously in
+     * background and the callbacks are called in the UI thread.
+     * 
+     * @param relationship Relationship name
+     * @param target Target entity
+     * @param callback Result callback
+     */
+    public <T extends BaasioBaseEntity> void disconnectInBackground(final String relationship,
+            final T target, final BaasioCallback<BaasioEntity> callback) {
+        (new BaasioAsyncTask<BaasioEntity>(callback) {
+            @Override
+            public BaasioEntity doTask() throws BaasioException {
+                return disconnect(relationship, target);
+            }
+        }).execute();
+    }
 }
