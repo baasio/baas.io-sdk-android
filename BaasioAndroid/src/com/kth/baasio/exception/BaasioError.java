@@ -40,6 +40,8 @@ public final class BaasioError {
 
     public static final String ERROR_WRONG_BAASIO_URL = "baas.io URL must start with http:// or https://";
 
+    public static final String ERROR_MISSING_FILE_NAME = "Missing filename";
+
     public static final String ERROR_MISSING_LOCAL_FILE_PATH = "Missing local file path";
 
     public static final String ERROR_MISSING_LOCAL_FILE_NAME = "Missing local file name";

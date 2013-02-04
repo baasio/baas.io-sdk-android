@@ -258,6 +258,10 @@ public class BaasioFile extends BaasioBaseEntity {
             throw new IllegalArgumentException(BaasioError.ERROR_MISSING_TYPE);
         }
 
+        if (ObjectUtils.isEmpty(getFilename())) {
+            throw new IllegalArgumentException(BaasioError.ERROR_MISSING_FILE_NAME);
+        }
+
         BaasioResponse response = Baas.io().apiRequest(HttpMethod.POST, null, this, getType());
 
         if (response != null) {
@@ -295,6 +299,10 @@ public class BaasioFile extends BaasioBaseEntity {
     public BaasioFile update() throws BaasioException {
         if (ObjectUtils.isEmpty(getType())) {
             throw new IllegalArgumentException(BaasioError.ERROR_MISSING_TYPE);
+        }
+
+        if (ObjectUtils.isEmpty(getFilename())) {
+            throw new IllegalArgumentException(BaasioError.ERROR_MISSING_FILE_NAME);
         }
 
         BaasioResponse response = Baas.io().apiRequest(HttpMethod.PUT, null, this, getType(),
