@@ -282,14 +282,7 @@ public class BaasioUser extends BaasioBaseEntity {
      * @return User entity
      */
     public BaasioUser get() throws BaasioException {
-        String target;
-        if (ObjectUtils.isEmpty(getUuid())) {
-            target = getUsername();
-        } else {
-            target = getUuid().toString();
-        }
-
-        BaasioBaseEntity entity = BaasioBaseEntity.get(getType(), target);
+        BaasioBaseEntity entity = BaasioBaseEntity.get(getType(), getUniqueKey());
         return entity.toType(BaasioUser.class);
     }
 
