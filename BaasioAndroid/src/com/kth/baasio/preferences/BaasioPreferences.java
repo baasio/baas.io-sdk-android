@@ -32,6 +32,8 @@ public class BaasioPreferences {
     private static final String SHARED_PREFERENCE_NAME_REGISTERED_USERNAME_FOR_PUSH = "baasio_registered_username_for_push";
 
     private static final String SHARED_PREFERENCE_NAME_REGISTERED_TAGS_FOR_PUSH = "baasio_registered_tag_for_push";
+    
+    private static final String SHARED_PREFERENCE_NAME_REGISTERED_REGID_FOR_PUSH = "baasio_registered_regid_for_push";
 
     private static final String SHARED_PREFERENCE_NAME_NEED_REGISTER_TAGS_FOR_PUSH = "baasio_need_register_tag_for_push";
 
@@ -147,6 +149,22 @@ public class BaasioPreferences {
     public static String getRegisteredTags(Context context) {
         SharedPreferences prefs = getPreference(context);
         String result = prefs.getString(SHARED_PREFERENCE_NAME_REGISTERED_TAGS_FOR_PUSH, "");
+
+        return result;
+    }
+    
+    public static void setRegisteredRegId(Context context, String string) {
+        SharedPreferences.Editor editor = getPreference(context).edit();
+        editor.putString(SHARED_PREFERENCE_NAME_REGISTERED_REGID_FOR_PUSH, string);
+
+        SharedPreferenceSaver saver = PlatformSpecificImplementationFactory
+                .getSharedPreferenceSaver(context);
+        saver.savePreferences(editor, false);
+    }
+
+    public static String getRegisteredRegId(Context context) {
+        SharedPreferences prefs = getPreference(context);
+        String result = prefs.getString(SHARED_PREFERENCE_NAME_REGISTERED_REGID_FOR_PUSH, "");
 
         return result;
     }

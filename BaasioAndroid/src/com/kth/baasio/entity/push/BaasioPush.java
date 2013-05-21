@@ -20,7 +20,6 @@ import org.springframework.http.HttpMethod;
 
 import android.content.Context;
 import android.text.TextUtils;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,14 +56,6 @@ public class BaasioPush {
 
     }
 
-    /**
-     * Register device with GCM regId. If server is not available(HTTP status
-     * 5xx), it will retry 5 times.
-     * 
-     * @param context Context
-     * @param regId GCM regId
-     * @return Registered device information
-     */
     public static BaasioDevice register(Context context, String regId) throws BaasioException {
         if (!Baas.io().isGcmEnabled()) {
             throw new BaasioException(BaasioError.ERROR_GCM_DISABLED);
@@ -73,6 +64,42 @@ public class BaasioPush {
         GCMRegistrar.checkDevice(context);
         if (BuildConfig.DEBUG) {
             GCMRegistrar.checkManifest(context);
+        }
+
+        String signedInUsername = "";
+
+        if (!ObjectUtils.isEmpty(Baas.io().getSignedInUser())) {
+            signedInUsername = Baas.io().getSignedInUser().getUsername();
+        }
+
+        String newTags = BaasioPreferences.getNeedRegisteredTags(context);
+        String oldRegId = BaasioPreferences.getRegisteredRegId(context);
+
+        if (GCMRegistrar.isRegisteredOnServer(context)) {
+            String registeredUsername = BaasioPreferences.getRegisteredUserName(context);
+
+            if (registeredUsername.equals(signedInUsername)) {
+                String curTags = BaasioPreferences.getRegisteredTags(context);
+
+                if (curTags.equals(newTags)) {
+                    if (oldRegId.equals(regId)) {
+                        LogUtils.LOGV(TAG, "BaasioPush.register() called but already registered.");
+                        throw new BaasioException(BaasioError.ERROR_GCM_ALREADY_REGISTERED);
+                    } else {
+                        LogUtils.LOGV(
+                                TAG,
+                                "BaasioPush.register() called. Already registered on the GCM server. But, need to register again because regId changed.");
+                    }
+                } else {
+                    LogUtils.LOGV(
+                            TAG,
+                            "BaasioPush.register() called. Already registered on the GCM server. But, need to register again because tags changed.");
+                }
+            } else {
+                LogUtils.LOGV(
+                        TAG,
+                        "BaasioPush.register() called. Already registered on the GCM server. But, need to register again because username changed.");
+            }
         }
 
         BaasioDevice device = new BaasioDevice();
@@ -99,26 +126,50 @@ public class BaasioPush {
         long backoff = BACKOFF_MILLIS + sRandom.nextInt(1000);
 
         for (int i = 1; i <= MAX_ATTEMPTS; i++) {
+            LogUtils.LOGV(TAG, "#" + i + " Attempt..");
             try {
-                BaasioResponse response = Baas.io().apiRequest(HttpMethod.POST, null, device,
-                        "pushes", "devices");
+                BaasioResponse response = null;
+                if (ObjectUtils.isEmpty(oldRegId)) {
+                    LogUtils.LOGV(TAG, "POST /devices");
+                    LogUtils.LOGV(TAG, "Request: " + device.toString());
+
+                    response = Baas.io().apiRequest(HttpMethod.POST, null, device, "devices");
+
+                    LogUtils.LOGV(TAG, "Response: " + response.toString());
+                } else {
+                    if (!oldRegId.equals(regId)) {
+                        LogUtils.LOGV(TAG, "RegId changed!!!!");
+
+                        LogUtils.LOGV(TAG, "New RegId: " + regId);
+                        LogUtils.LOGV(TAG, "Old RegId: " + oldRegId);
+                    } else {
+                        LogUtils.LOGV(TAG, "New and old regId are same!!!");
+
+                        LogUtils.LOGV(TAG, "RegId: " + oldRegId);
+                    }
+
+                    LogUtils.LOGV(TAG, "PUT /devices/" + oldRegId);
+                    LogUtils.LOGV(TAG, "Request: " + device.toString());
+
+                    response = Baas.io().apiRequest(HttpMethod.PUT, null, device, "devices",
+                            oldRegId);
+
+                    LogUtils.LOGV(TAG, "Response: " + response.toString());
+                }
 
                 if (response != null) {
                     BaasioDevice entity = response.getFirstEntity().toType(BaasioDevice.class);
                     if (!ObjectUtils.isEmpty(entity)) {
                         GCMRegistrar.setRegisteredOnServer(context, true);
+
                         BaasioPreferences.setRegisteredTags(context, tagString);
-
-                        String signedInUsername = "";
-
-                        if (!ObjectUtils.isEmpty(Baas.io().getSignedInUser())) {
-                            signedInUsername = Baas.io().getSignedInUser().getUsername();
-                        }
-
                         BaasioPreferences.setRegisteredUserName(context, signedInUsername);
+
                         String newDeviceUuid = entity.getUuid().toString();
 
                         BaasioPreferences.setDeviceUuidForPush(context, newDeviceUuid);
+
+                        BaasioPreferences.setRegisteredRegId(context, regId);
                         return entity;
                     }
 
@@ -127,32 +178,79 @@ public class BaasioPush {
 
                 throw new BaasioException(BaasioError.ERROR_UNKNOWN_NO_RESPONSE_DATA);
             } catch (BaasioException e) {
+                LogUtils.LOGV(TAG, e.toString());
+
                 String statusCode = e.getStatusCode();
                 if (!ObjectUtils.isEmpty(statusCode)) {
-                    if (!statusCode.startsWith("5")) {
-                        break;
+                    if (statusCode.equals("400") && e.getErrorCode() == 913) {
+                        // 이미 regId가 등록되어 있음. 하지만 태그 정보가 업데이트되어 있는지 알 수 없으니
+                        // Retry
+
+                        LogUtils.LOGV(
+                                TAG,
+                                "Already registered on the GCM server. But, need to register again because other data could be changed.");
+
+                        oldRegId = regId;
+                        i = 1;
+                    } else {
+                        if (!statusCode.startsWith("5")) {
+                            break;
+                        }
                     }
                 }
 
                 // Here we are simplifying and retrying on any error; in a real
                 // application, it should retry only on unrecoverable errors
                 // (like HTTP error code 503).
-                Log.e(TAG, "Failed to register on attempt " + i, e);
+                LogUtils.LOGE(TAG, "Failed to register on attempt " + i, e);
                 if (i == MAX_ATTEMPTS) {
                     break;
                 }
                 try {
-                    Log.v(TAG, "Sleeping for " + backoff + " ms before retry");
+                    LogUtils.LOGV(TAG, "Sleeping for " + backoff + " ms before retry");
                     Thread.sleep(backoff);
                 } catch (InterruptedException e1) {
                     // Activity finished before we complete - exit.
-                    Log.d(TAG, "Thread interrupted: abort remaining retries!");
+                    LogUtils.LOGD(TAG, "Thread interrupted: abort remaining retries!");
                     Thread.currentThread().interrupt();
                     return null;
                 }
                 // increase backoff exponentially
                 backoff *= 2;
             }
+        }
+
+        return null;
+    }
+
+    /**
+     * Register device. If server is not available(HTTP status 5xx), it will
+     * retry 5 times. Executes asynchronously in background and the callbacks
+     * are called in the UI thread.
+     * 
+     * @param context Context
+     * @param callback GCM registration result callback
+     * @return registration task
+     */
+    public static BaasioDeviceAsyncTask registerInBackground(final Context context,
+            final BaasioDeviceCallback callback) {
+        final String regId = GCMRegistrar.getRegistrationId(context);
+
+        if (TextUtils.isEmpty(regId)) {
+            GCMRegistrar.register(context, Baas.io().getGcmSenderId());
+        } else {
+            BaasioDeviceAsyncTask task = new BaasioDeviceAsyncTask(callback) {
+                @Override
+                public BaasioDevice doTask() throws BaasioException {
+                    BaasioDevice device = register(context, regId);
+                    if (ObjectUtils.isEmpty(device)) {
+                        GCMRegistrar.unregister(context);
+                    }
+                    return device;
+                }
+            };
+            task.execute();
+            return task;
         }
 
         return null;
@@ -170,18 +268,6 @@ public class BaasioPush {
      */
     public static BaasioDeviceAsyncTask registerWithTagsInBackground(final Context context,
             String tags, final BaasioDeviceCallback callback) {
-        if (!Baas.io().isGcmEnabled()) {
-            if (callback != null) {
-                callback.onException(new BaasioException(BaasioError.ERROR_GCM_DISABLED));
-            }
-            return null;
-        }
-
-        GCMRegistrar.checkDevice(context);
-        if (BuildConfig.DEBUG) {
-            GCMRegistrar.checkManifest(context);
-        }
-
         List<String> tagList = getTagList(tags);
         for (String tag : tagList) {
             if (tag.length() > 12) {
@@ -200,79 +286,6 @@ public class BaasioPush {
     }
 
     /**
-     * Register device. If server is not available(HTTP status 5xx), it will
-     * retry 5 times. Executes asynchronously in background and the callbacks
-     * are called in the UI thread.
-     * 
-     * @param context Context
-     * @param callback GCM registration result callback
-     * @return registration task
-     */
-    public static BaasioDeviceAsyncTask registerInBackground(final Context context,
-            final BaasioDeviceCallback callback) {
-        if (!Baas.io().isGcmEnabled()) {
-            if (callback != null) {
-                callback.onException(new BaasioException(BaasioError.ERROR_GCM_DISABLED));
-            }
-            return null;
-        }
-
-        GCMRegistrar.checkDevice(context);
-        if (BuildConfig.DEBUG) {
-            GCMRegistrar.checkManifest(context);
-        }
-
-        final String regId = GCMRegistrar.getRegistrationId(context);
-
-        if (TextUtils.isEmpty(regId)) {
-            GCMRegistrar.register(context, Baas.io().getGcmSenderId());
-        } else {
-            BaasioDeviceAsyncTask task = new BaasioDeviceAsyncTask(callback) {
-                @Override
-                public BaasioDevice doTask() throws BaasioException {
-                    String signedInUsername = "";
-
-                    if (!ObjectUtils.isEmpty(Baas.io().getSignedInUser())) {
-                        signedInUsername = Baas.io().getSignedInUser().getUsername();
-                    }
-
-                    String newTags = BaasioPreferences.getNeedRegisteredTags(context);
-
-                    if (GCMRegistrar.isRegisteredOnServer(context)) {
-                        String registeredUsername = BaasioPreferences
-                                .getRegisteredUserName(context);
-
-                        if (registeredUsername.equals(signedInUsername)) {
-                            String curTags = BaasioPreferences.getRegisteredTags(context);
-
-                            if (curTags.equals(newTags)) {
-                                throw new BaasioException(BaasioError.ERROR_GCM_ALREADY_REGISTERED);
-                            } else {
-                                LogUtils.LOGV(TAG,
-                                        "Already registered on the GCM server. But, need to register again because tags changed.");
-                            }
-                        } else {
-                            LogUtils.LOGV(TAG,
-                                    "Already registered on the GCM server. But, need to register again because username changed.");
-                        }
-                    }
-
-                    BaasioDevice device = register(context, regId);
-                    if (ObjectUtils.isEmpty(device)) {
-                        GCMRegistrar.unregister(context);
-                    }
-                    return device;
-                }
-            };
-
-            task.execute();
-            return task;
-        }
-
-        return null;
-    }
-
-    /**
      * Unregister device. However, server is not available(HTTP status 5xx), it
      * will not retry.
      * 
@@ -287,23 +300,31 @@ public class BaasioPush {
             throw new BaasioException(BaasioError.ERROR_GCM_ALREADY_UNREGISTERED);
         }
 
-        String deviceUuid = BaasioPreferences.getDeviceUuidForPush(context);
+        String regId = BaasioPreferences.getRegisteredRegId(context);
 
-        BaasioResponse response = Baas.io().apiRequest(HttpMethod.DELETE, null, null, "pushes",
-                "devices", deviceUuid);
+        if (!ObjectUtils.isEmpty(regId)) {
+            LogUtils.LOGV(TAG, "DELETE /devices/" + regId);
 
-        BaasioPreferences.setDeviceUuidForPush(context, "");
-        BaasioPreferences.setNeedRegisteredTags(context, "");
-        BaasioPreferences.setRegisteredUserName(context, "");
-        BaasioPreferences.setRegisteredTags(context, "");
+            BaasioResponse response = Baas.io().apiRequest(HttpMethod.DELETE, null, null,
+                    "devices", regId);
 
-        GCMRegistrar.setRegisteredOnServer(context, false);
+            BaasioPreferences.setDeviceUuidForPush(context, "");
+            BaasioPreferences.setNeedRegisteredTags(context, "");
+            BaasioPreferences.setRegisteredUserName(context, "");
+            BaasioPreferences.setRegisteredTags(context, "");
+            BaasioPreferences.setRegisteredRegId(context, "");
 
-        if (response != null) {
-            return response;
-        } else {
-            throw new BaasioException(BaasioError.ERROR_UNKNOWN_NO_RESPONSE_DATA);
+            GCMRegistrar.setRegisteredOnServer(context, false);
+
+            if (response != null) {
+                LogUtils.LOGV(TAG, "Response: " + response.toString());
+                return response;
+            } else {
+                throw new BaasioException(BaasioError.ERROR_UNKNOWN_NO_RESPONSE_DATA);
+            }
         }
+
+        throw new BaasioException(BaasioError.ERROR_GCM_MISSING_REGID);
     }
 
     /**

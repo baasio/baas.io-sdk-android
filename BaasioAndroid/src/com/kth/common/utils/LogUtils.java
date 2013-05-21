@@ -17,18 +17,32 @@
 package com.kth.common.utils;
 
 import com.kth.baasio.BuildConfig;
+import com.kth.baasio.utils.ObjectUtils;
 
+import android.content.Context;
+import android.os.Environment;
 import android.util.Log;
+
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * Helper methods that make logging more consistent throughout the app.
  */
-public class LogUtils {
+public final class LogUtils {
     private static final String LOG_PREFIX = "baas.io_";
 
     private static final int LOG_PREFIX_LENGTH = LOG_PREFIX.length();
 
     private static final int MAX_LOG_TAG_LENGTH = 23;
+
+    private static boolean LOG_TO_FILE = false;
+
+    private static String packageName;
 
     public static String makeLogTag(String str) {
         if (str.length() > MAX_LOG_TAG_LENGTH - LOG_PREFIX_LENGTH) {
@@ -61,6 +75,8 @@ public class LogUtils {
         // noinspection PointlessBooleanExpression,ConstantConditions
         if (BuildConfig.DEBUG && Log.isLoggable(tag, Log.VERBOSE)) {
             Log.v(tag, message);
+
+            appendLog(tag, message);
         }
     }
 
@@ -96,5 +112,71 @@ public class LogUtils {
     }
 
     private LogUtils() {
+    }
+
+    public static void setEnableLogToFile(Context context) {
+        String packageName = context.getPackageName();
+
+        if (!ObjectUtils.isEmpty(packageName)) {
+            LogUtils.packageName = packageName;
+            LOG_TO_FILE = true;
+        } else {
+            Log.e("LogUtils", "Can't write log to file");
+        }
+    }
+
+    public static void appendLog(String tag, String text) {
+        appendLog(tag, text, null);
+    }
+
+    public static void appendLog(String tag, String text, Throwable cause) {
+        if (!BuildConfig.DEBUG) {
+            return;
+        }
+
+        if (!LOG_TO_FILE) {
+            return;
+        }
+
+        Date currentDate = new Date();
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd");
+        String current = dateFormat.format(currentDate);
+
+        File myFilesDir = new File(Environment.getExternalStorageDirectory().getAbsolutePath()
+                + "/Android/data/" + packageName + "/baas.io_log");
+
+        if (!myFilesDir.exists() || !myFilesDir.isDirectory()) {
+            myFilesDir.mkdirs();
+        }
+
+        File logFile = new File(myFilesDir + "/" + tag + "_" + current + ".txt");
+        if (!logFile.exists()) {
+            try {
+                logFile.createNewFile();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+
+        try {
+            // BufferedWriter for performance, true to set append to file flag
+            BufferedWriter buf = new BufferedWriter(new FileWriter(logFile, true));
+
+            String currentDateTimeString = SimpleDateFormat.getDateTimeInstance().format(
+                    currentDate);
+            buf.append(currentDateTimeString);
+            buf.newLine();
+            buf.append(text);
+            buf.newLine();
+            if (cause != null) {
+                buf.append(cause.getStackTrace().toString());
+            }
+            buf.close();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
     }
 }
