@@ -18,6 +18,7 @@ import com.kth.baasio.preferences.BaasioPreferences;
 import com.kth.baasio.response.BaasioResponse;
 import com.kth.baasio.utils.JsonUtils;
 import com.kth.baasio.utils.ObjectUtils;
+import com.kth.baasio.utils.UrlUtils;
 import com.kth.common.utils.LogUtils;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
@@ -25,6 +26,7 @@ import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.springframework.http.HttpMethod;
 
 import android.content.Context;
+import android.net.Uri;
 
 import java.util.HashMap;
 import java.util.List;
@@ -770,5 +772,62 @@ public class BaasioUser extends BaasioBaseEntity {
                 return disconnect(relationship, target);
             }
         }).execute();
+    }
+
+    /**
+     * Change password.
+     * 
+     * @param oldPassword Old password
+     * @param newPassword New password
+     */
+    public static boolean changePassword(String oldPassword, String newPassword)
+            throws BaasioException {
+        BaasioUser user = Baas.io().getSignedInUser();
+        if (ObjectUtils.isEmpty(user)) {
+            throw new IllegalArgumentException(BaasioError.ERROR_NEED_SIGNIN);
+        }
+
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("oldpassword", oldPassword);
+        params.put("newpassword", newPassword);
+        BaasioResponse response = Baas.io().apiRequest(HttpMethod.POST, null, params,
+                BaasioUser.ENTITY_TYPE, user.getUniqueKey(), "password");
+
+        if (response != null) {
+            return true;
+        }
+
+        throw new BaasioException(BaasioError.ERROR_UNKNOWN_NO_RESPONSE_DATA);
+    }
+
+    /**
+     * Change password. Executes asynchronously in background and the callbacks
+     * are called in the UI thread.
+     * 
+     * @param oldPassword Old password
+     * @param newPassword New password
+     * @param callback Result callback
+     */
+    public static void changePasswordInBackground(final String oldPassword,
+            final String newPassword, final BaasioCallback<Boolean> callback) {
+        (new BaasioAsyncTask<Boolean>(callback) {
+            @Override
+            public Boolean doTask() throws BaasioException {
+                return changePassword(oldPassword, newPassword);
+            }
+        }).execute();
+    }
+
+    /**
+     * Get url for reset password. If want to reset password, open browser or
+     * webview with this url.
+     * 
+     * @param email Email or username or user's uuid to reset password
+     */
+    public static Uri getResetPasswordUrl(String email) {
+        String url = UrlUtils.path(Baas.io().getBaasioUrl(), Baas.io().getBaasioId(), Baas.io()
+                .getApplicationId(), BaasioUser.ENTITY_TYPE, email, "resetpw");
+
+        return Uri.parse(url);
     }
 }

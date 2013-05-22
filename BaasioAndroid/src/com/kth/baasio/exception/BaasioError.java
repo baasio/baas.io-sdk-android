@@ -46,6 +46,8 @@ public final class BaasioError {
 
     public static final String ERROR_MISSING_LOCAL_FILE_NAME = "Missing local file name";
 
+    public static final String ERROR_NEED_SIGNIN = "Need signin";
+
     public static final String ERROR_NOT_SUPPORT_CLONING = "Clone is not allowed.";
 
     public static final String ERROR_ENTITY_TYPE_MISMATCHED = "Entity type is mismatched";
