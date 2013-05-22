@@ -62,12 +62,16 @@ public final class LogUtils {
     public static void LOGD(final String tag, String message) {
         if (Log.isLoggable(tag, Log.DEBUG)) {
             Log.d(tag, message);
+
+            appendLog(tag, message);
         }
     }
 
     public static void LOGD(final String tag, String message, Throwable cause) {
         if (Log.isLoggable(tag, Log.DEBUG)) {
             Log.d(tag, message, cause);
+
+            appendLog(tag, message, cause);
         }
     }
 
@@ -84,31 +88,45 @@ public final class LogUtils {
         // noinspection PointlessBooleanExpression,ConstantConditions
         if (BuildConfig.DEBUG && Log.isLoggable(tag, Log.VERBOSE)) {
             Log.v(tag, message, cause);
+
+            appendLog(tag, message, cause);
         }
     }
 
     public static void LOGI(final String tag, String message) {
         Log.i(tag, message);
+
+        appendLog(tag, message);
     }
 
     public static void LOGI(final String tag, String message, Throwable cause) {
         Log.i(tag, message, cause);
+
+        appendLog(tag, message, cause);
     }
 
     public static void LOGW(final String tag, String message) {
         Log.w(tag, message);
+
+        appendLog(tag, message);
     }
 
     public static void LOGW(final String tag, String message, Throwable cause) {
         Log.w(tag, message, cause);
+
+        appendLog(tag, message, cause);
     }
 
     public static void LOGE(final String tag, String message) {
         Log.e(tag, message);
+
+        appendLog(tag, message);
     }
 
     public static void LOGE(final String tag, String message, Throwable cause) {
         Log.e(tag, message, cause);
+
+        appendLog(tag, message, cause);
     }
 
     private LogUtils() {
@@ -119,9 +137,12 @@ public final class LogUtils {
 
         if (!ObjectUtils.isEmpty(packageName)) {
             LogUtils.packageName = packageName;
+
             LOG_TO_FILE = true;
         } else {
             Log.e("LogUtils", "Can't write log to file");
+
+            LOG_TO_FILE = false;
         }
     }
 
