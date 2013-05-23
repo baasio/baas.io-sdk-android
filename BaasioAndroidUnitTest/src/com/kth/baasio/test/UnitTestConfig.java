@@ -17,6 +17,8 @@ public class UnitTestConfig {
 
     public static final String COMMON_PASSWORD = "test1234";
 
+    public static final String CHANGE_PASSWORD = "test1231";
+
     // Entity
     public static final String ENTITY1_TYPE = "test1";
 

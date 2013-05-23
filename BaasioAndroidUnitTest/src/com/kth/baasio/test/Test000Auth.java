@@ -227,15 +227,42 @@ public class Test000Auth extends InstrumentationTestCase {
         signal.await();
     }
 
-    public void test302Uesr1SignOut() {
+    public void test302User1ChangePassword() throws InterruptedException {
+        final CountDownLatch signal = new CountDownLatch(1);
+
+        BaasioUser.changePasswordInBackground(UnitTestConfig.COMMON_PASSWORD,
+                UnitTestConfig.CHANGE_PASSWORD, new BaasioCallback<Boolean>() {
+
+                    @Override
+                    public void onResponse(Boolean response) {
+                        if (!response) {
+                            fail("changePasswordInBackground response is false");
+                        }
+
+                        signal.countDown();
+                    }
+
+                    @Override
+                    public void onException(BaasioException e) {
+                        LogUtils.LOGE(TAG, e.toString());
+                        fail(e.toString());
+
+                        signal.countDown();
+                    }
+                });
+
+        signal.await();
+    }
+
+    public void test303Uesr1SignOut() {
         BaasioUser.signOut(getInstrumentation().getContext());
     }
 
-    public void test303User1SignIn() throws InterruptedException {
+    public void test304User1SignIn() throws InterruptedException {
         final CountDownLatch signal = new CountDownLatch(1);
 
         BaasioUser.signInInBackground(getInstrumentation().getContext(),
-                UnitTestConfig.USER1_USERNAME, UnitTestConfig.COMMON_PASSWORD,
+                UnitTestConfig.USER1_USERNAME, UnitTestConfig.CHANGE_PASSWORD,
                 new BaasioSignInCallback() {
 
                     @Override
@@ -256,7 +283,7 @@ public class Test000Auth extends InstrumentationTestCase {
         signal.await();
     }
 
-    public void test304User1Unsubscribe() throws InterruptedException {
+    public void test305User1Unsubscribe() throws InterruptedException {
         final CountDownLatch signal = new CountDownLatch(1);
 
         BaasioUser user = Baas.io().getSignedInUser();
@@ -282,7 +309,7 @@ public class Test000Auth extends InstrumentationTestCase {
         signal.await();
     }
 
-    public void test305User1SignIn() throws InterruptedException {
+    public void test306User1SignIn() throws InterruptedException {
         final CountDownLatch signal = new CountDownLatch(1);
 
         BaasioUser.signInInBackground(getInstrumentation().getContext(),
@@ -308,7 +335,7 @@ public class Test000Auth extends InstrumentationTestCase {
         signal.await();
     }
 
-    public void test306User1SignUp() throws InterruptedException {
+    public void test307User1SignUp() throws InterruptedException {
         final CountDownLatch signal = new CountDownLatch(1);
 
         BaasioUser.signUpInBackground(UnitTestConfig.USER1_USERNAME, UnitTestConfig.USER1_USERNAME,
@@ -333,7 +360,7 @@ public class Test000Auth extends InstrumentationTestCase {
         signal.await();
     }
 
-    public void test307User2SignUp() throws InterruptedException {
+    public void test308User2SignUp() throws InterruptedException {
         final CountDownLatch signal = new CountDownLatch(1);
 
         BaasioUser.signUpInBackground(UnitTestConfig.USER2_USERNAME, UnitTestConfig.USER2_USERNAME,
@@ -358,7 +385,7 @@ public class Test000Auth extends InstrumentationTestCase {
         signal.await();
     }
 
-    public void test308User1SignIn() throws InterruptedException {
+    public void test309User1SignIn() throws InterruptedException {
         final CountDownLatch signal = new CountDownLatch(1);
 
         BaasioUser.signInInBackground(getInstrumentation().getContext(),
@@ -383,7 +410,7 @@ public class Test000Auth extends InstrumentationTestCase {
         signal.await();
     }
 
-    public void test309User1GetUserByUuid() throws InterruptedException {
+    public void test310User1GetUserByUuid() throws InterruptedException {
         final CountDownLatch signal = new CountDownLatch(1);
 
         BaasioUser user = new BaasioUser();
@@ -411,7 +438,7 @@ public class Test000Auth extends InstrumentationTestCase {
         signal.await();
     }
 
-    public void test310User1GetUserByUsername() throws InterruptedException {
+    public void test311User1GetUserByUsername() throws InterruptedException {
         final CountDownLatch signal = new CountDownLatch(1);
 
         BaasioUser user = new BaasioUser();
