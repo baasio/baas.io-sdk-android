@@ -456,10 +456,8 @@ public class Baas {
         String[] newSegments = list.toArray(new String[list.size()]);
 
         String fileDownloadUrl;
-        if (baasioUrl.startsWith("http://")) {
-            fileDownloadUrl = baasioUrl.replace("http://", "http://blob.");
-        } else if (baasioUrl.startsWith("https://")) {
-            fileDownloadUrl = baasioUrl.replace("https://", "https://blob.");
+        if (baasioUrl.contains("api.")) {
+            fileDownloadUrl = baasioUrl.replace("api", "blob");
         } else {
             throw new IllegalArgumentException(BaasioError.ERROR_WRONG_BAASIO_URL);
         }
