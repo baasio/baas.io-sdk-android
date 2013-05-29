@@ -234,6 +234,13 @@ public class BaasioPush {
      */
     public static BaasioDeviceAsyncTask registerInBackground(final Context context,
             final BaasioDeviceCallback callback) {
+        if (!Baas.io().isGcmEnabled()) {
+            if (callback != null) {
+                callback.onException(new BaasioException(BaasioError.ERROR_GCM_DISABLED));
+            }
+            return null;
+        }
+
         final String regId = GCMRegistrar.getRegistrationId(context);
 
         if (TextUtils.isEmpty(regId)) {
@@ -268,6 +275,13 @@ public class BaasioPush {
      */
     public static BaasioDeviceAsyncTask registerWithTagsInBackground(final Context context,
             String tags, final BaasioDeviceCallback callback) {
+        if (!Baas.io().isGcmEnabled()) {
+            if (callback != null) {
+                callback.onException(new BaasioException(BaasioError.ERROR_GCM_DISABLED));
+            }
+            return null;
+        }
+
         List<String> tagList = getTagList(tags);
         for (String tag : tagList) {
             if (tag.length() > 12) {
