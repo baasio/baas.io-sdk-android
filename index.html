@@ -31,37 +31,121 @@
     <!-- MAIN CONTENT -->
     <div id="main_content_wrap" class="outer">
       <section id="main_content" class="inner">
-        <h3>
-<a name="welcome-to-github-pages" class="anchor" href="#welcome-to-github-pages"><span class="octicon octicon-link"></span></a>Welcome to GitHub Pages.</h3>
+        <p>본 가이드는 안드로이드 개발자를 위한 페이지이며 SDK 다운로드 정보를 참고하여 필요한 개발환경 구성이 완료된 상태를 기준으로 구성되어 있습니다.</p>
 
-<p>This automatic page generator is the easiest way to create beautiful pages for all of your projects. Author your page content here using GitHub Flavored Markdown, select a template crafted by a designer, and publish. After your page is generated, you can check out the new branch:</p>
+<p>baas.io에서는 앱 개발자 분들이 많이 사용하시는 사용자 관리, 파일 업/다운로드, Push 메시지 송/수신, 고객센터 등의 기능을 손쉽게 사용할 수 있는 클라우드 기반 서비스를 제공합니다.</p>
 
-<pre><code>$ cd your_repo_root/repo_name
-$ git fetch origin
-$ git checkout gh-pages
-</code></pre>
+<p>baas.io에서 제공되는 Android SDK는 REST API에 익숙하지 않은 Android 개발자 분들도 간단한 설정만으로 baas.io의 모든 기능을 사용할 수 있도록 구성되어 있습니다</p>
 
-<p>If you're using the GitHub for Mac, simply sync your repository and you'll see the new branch.</p>
+<p><strong><em>OS 지원</em></strong></p>
 
-<h3>
-<a name="designer-templates" class="anchor" href="#designer-templates"><span class="octicon octicon-link"></span></a>Designer Templates</h3>
+<ul>
+<li>Android OS 2.2 이상 4.2.x 이하</li>
+</ul><p><strong><em>라이브러리 의존성</em></strong></p>
 
-<p>We've crafted some handsome templates for you to use. Go ahead and continue to layouts to browse through them. You can easily go back to edit your page before publishing. After publishing your page, you can revisit the page generator and switch to another theme. Your Page content will be preserved if it remained markdown format.</p>
+<ul>
+<li>
+<a href="http://developer.android.com/google/gcm/index.html">Google cloud messaging</a>
 
-<h3>
-<a name="rather-drive-stick" class="anchor" href="#rather-drive-stick"><span class="octicon octicon-link"></span></a>Rather Drive Stick?</h3>
+<ul>
+<li>gcm.jar</li>
+</ul>
+</li>
+<li>
+<a href="http://www.springsource.org/spring-android">Spring for android</a>
 
-<p>If you prefer to not use the automatic generator, push a branch named <code>gh-pages</code> to your repository to create a page manually. In addition to supporting regular HTML content, GitHub Pages support Jekyll, a simple, blog aware static site generator written by our own Tom Preston-Werner. Jekyll makes it easy to create site-wide headers and footers without having to copy them across every page. It also offers intelligent blog support and other advanced templating features.</p>
+<ul>
+<li>spring-android-core-1.0.0.RELEASE.jar</li>
+<li>spring-android-rest-template-1.0.0.RELEASE.jar</li>
+</ul>
+</li>
+<li>
+<a href="http://jackson.codehaus.org/">Jackson</a>
 
-<h3>
-<a name="authors-and-contributors" class="anchor" href="#authors-and-contributors"><span class="octicon octicon-link"></span></a>Authors and Contributors</h3>
+<ul>
+<li>jackson-core-asl-1.9.1.jar</li>
+<li>jackson-mapper-asl-1.9.1.jar</li>
+</ul>
+</li>
+<li>
+<a href="http://www.slf4j.org/">slf4j</a>
 
-<p>You can <a href="https://github.com/blog/821" class="user-mention">@mention</a> a GitHub username to generate a link to their profile. The resulting <code>&lt;a&gt;</code> element will link to the contributor's GitHub Profile. For example: In 2007, Chris Wanstrath (<a href="https://github.com/defunkt" class="user-mention">@defunkt</a>), PJ Hyett (<a href="https://github.com/pjhyett" class="user-mention">@pjhyett</a>), and Tom Preston-Werner (<a href="https://github.com/mojombo" class="user-mention">@mojombo</a>) founded GitHub.</p>
+<ul>
+<li>slf4j-android-1.6.1-RC1.jar</li>
+</ul>
+</li>
+</ul><p><strong><em>기타 샘플 프로젝트 다운로드</em></strong></p>
 
-<h3>
-<a name="support-or-contact" class="anchor" href="#support-or-contact"><span class="octicon octicon-link"></span></a>Support or Contact</h3>
+<ul>
+<li>
+<a href="https://github.com/baasio/baas.io-sample-android/archive/master.zip">Sample Project(Kitchen Sink)</a>
 
-<p>Having trouble with Pages? Check out the documentation at <a href="http://help.github.com/pages">http://help.github.com/pages</a> or contact <a href="mailto:support@github.com">support@github.com</a> and we’ll help you sort it out.</p>
+<ul>
+<li>baas.io의 기능별로 구현된 샘플</li>
+</ul>
+</li>
+<li>
+<a href="https://github.com/baasio/baas.io-startup-android/archive/master.zip">Startup Project</a>
+
+<ul>
+<li>baas.io의 기본설정만 구현된 샘플</li>
+</ul>
+</li>
+<li>
+<a href="https://github.com/baasio/baas.io-helpcenter-android/archive/master.zip">모바일 고객센터</a>
+
+<ul>
+<li>baas.io의 모바일 고객센터가 구현된 샘플</li>
+</ul>
+</li>
+</ul><h2>
+<a name="" class="anchor" href="#"><span class="octicon octicon-link"></span></a>구성</h2>
+
+<p>본 페이지는 baas.io Android SDK를 Import하여 새로운 앱을 개발하기 위한 가이드인 Getting Started와 기능별로 SDK의 사용법을 가이드하는 SDK Guide로 구성되어 있습니다.</p>
+
+<ul>
+<li>
+<a href="https://github.com/baasio/baas.io-sdk-android/wiki/Getting-Started">Getting Started</a>
+
+<ul>
+<li>baas.io SDK를 이용하여 앱을 생성하는 것을 따라 할 수 있도록 단계별로 설명하고 있습니다. </li>
+</ul>
+</li>
+<li>
+<a href="https://github.com/baasio/baas.io-sdk-android/wiki/Android-SDK-Guide">SDK Guide</a>
+
+<ul>
+<li>baas.io SDK의 구조와 사용법을 기능별로 설명하고 있습니다.</li>
+</ul>
+</li>
+<li>
+<a href="https://github.com/baasio/baas.io-sdk-android/wiki/Facebook">Facebook Login</a>
+
+<ul>
+<li>Facebook 로그인을 통해 baas.io에 가입/로그인하는 방법을 설명하고 있습니다.</li>
+</ul>
+</li>
+<li>
+<a href="http://baasio.github.io/baas.io-sdk-android/api">Reference</a>
+
+<ul>
+<li>Javadoc으로 각 클래스와 매소드를 설명합니다.</li>
+</ul>
+</li>
+<li>
+<a href="http://baasio.github.io/baas.io-sdk-android/api" target="_blank">Reference</a>
+    - Javadoc으로 각 클래스와 매소드를 설명합니다.</li>
+</ul><h2>
+<a name="--" class="anchor" href="#--"><span class="octicon octicon-link"></span></a>기타 참조 링크</h2>
+
+<ul>
+<li>
+<a>GCM (Google Cloud Message) Service Guide</a>)</li>
+<li><a href="https://developers.facebook.com/docs/howtos/androidsdk/3.0/login-with-facebook/">Facebook Developers Guide - Use Facebook Login</a></li>
+<li><a href="https://developers.facebook.com/apps">Facebook Application - configuration</a></li>
+<li><a href="http://www.springsource.org/spring-android">Spring for Android</a></li>
+<li><a href="http://jackson.codehaus.org/">Jackson Java JSON-processor</a></li>
+</ul>
       </section>
     </div>
 
@@ -73,7 +157,17 @@ $ git checkout gh-pages
       </footer>
     </div>
 
-    
+              <script type="text/javascript">
+            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+          </script>
+          <script type="text/javascript">
+            try {
+              var pageTracker = _gat._getTracker("UA-41345441-1");
+            pageTracker._trackPageview();
+            } catch(err) {}
+          </script>
+
 
   </body>
 </html>
