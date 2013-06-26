@@ -643,6 +643,7 @@ public class BaasioUser extends BaasioBaseEntity {
      * 
      * @param oldPassword Old password
      * @param newPassword New password
+     * @return If true, changed successfully.
      */
     public static boolean changePassword(String oldPassword, String newPassword)
             throws BaasioException {
@@ -693,5 +694,41 @@ public class BaasioUser extends BaasioBaseEntity {
                 .getApplicationId(), BaasioUser.ENTITY_TYPE, email, "resetpw");
 
         return Uri.parse(url);
+    }
+
+    /**
+     * Proceed sending email for reset password.
+     * 
+     * @return If true, email for reset password has been sent successfully.
+     */
+    public static boolean resetPassword() throws BaasioException {
+        BaasioUser user = Baas.io().getSignedInUser();
+        if (ObjectUtils.isEmpty(user)) {
+            throw new IllegalArgumentException(BaasioError.ERROR_NEED_SIGNIN);
+        }
+
+        BaasioResponse response = Baas.io().apiRequest(HttpMethod.POST, null, null,
+                BaasioUser.ENTITY_TYPE, user.getUniqueKey(), "resetpw");
+
+        if (response != null) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Proceed sending email for reset password. Executes asynchronously in
+     * background and the callbacks are called in the UI thread.
+     * 
+     * @param callback Result callback
+     */
+    public static void resetPasswordInBackground(final BaasioCallback<Boolean> callback) {
+        (new BaasioAsyncTask<Boolean>(callback) {
+            @Override
+            public Boolean doTask() throws BaasioException {
+                return resetPassword();
+            }
+        }).execute();
     }
 }

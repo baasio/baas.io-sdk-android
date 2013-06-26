@@ -466,6 +466,27 @@ public class Test000Auth extends InstrumentationTestCase {
         signal.await();
     }
 
+    public void test312User1ResetPassword() throws InterruptedException {
+        final CountDownLatch signal = new CountDownLatch(1);
+
+        BaasioUser.resetPasswordInBackground(new BaasioCallback<Boolean>() {
+
+            @Override
+            public void onResponse(Boolean response) {
+                LogUtils.LOGV(TAG, response.toString());
+                signal.countDown();
+            }
+
+            @Override
+            public void onException(BaasioException e) {
+                fail(e.toString());
+
+                signal.countDown();
+            }
+        });
+        signal.await();
+    }
+
     public void test994Uninit_UserSignOut() {
         BaasioUser.signOut(getInstrumentation().getContext());
     }
