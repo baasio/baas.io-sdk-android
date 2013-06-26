@@ -596,10 +596,10 @@ public class Test001Entity extends InstrumentationTestCase {
         entity2.setUuid(mEntity2.getUuid());
 
         entity1.connectInBackground(UnitTestConfig.RELATIONSHIP_NAME, entity2,
-                new BaasioCallback<BaasioEntity>() {
+                new BaasioCallback<BaasioBaseEntity>() {
 
                     @Override
-                    public void onResponse(BaasioEntity response) {
+                    public void onResponse(BaasioBaseEntity response) {
                         if (!response.getType().equals(UnitTestConfig.ENTITY2_TYPE)) {
                             fail("Type miss match");
                         }
@@ -685,10 +685,10 @@ public class Test001Entity extends InstrumentationTestCase {
         entity2.setUuid(mEntity2.getUuid());
 
         entity1.disconnectInBackground(UnitTestConfig.RELATIONSHIP_NAME, entity2,
-                new BaasioCallback<BaasioEntity>() {
+                new BaasioCallback<BaasioBaseEntity>() {
 
                     @Override
-                    public void onResponse(BaasioEntity response) {
+                    public void onResponse(BaasioBaseEntity response) {
                         if (!response.getType().equals(UnitTestConfig.ENTITY2_TYPE)) {
                             fail("Type miss match");
                         }

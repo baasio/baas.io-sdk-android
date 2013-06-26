@@ -294,23 +294,21 @@ public class BaasioBaseEntity {
             return null;
         }
         T newEntity = null;
-        if (entity.getClass().isAssignableFrom(t)) {
-            try {
-                newEntity = (t.newInstance());
+        try {
+            newEntity = (t.newInstance());
 
-                if (newEntity.getType() != null) {
-                    if (newEntity.getType().equals(entity.getType())) {
-                        newEntity.properties = entity.properties;
-                    } else {
-                        throw new Exception(BaasioError.ERROR_ENTITY_TYPE_MISMATCHED);
-                    }
-                } else {
-                    newEntity.setType(entity.getType());
+            if (newEntity.getType() != null) {
+                if (newEntity.getType().equals(entity.getType())) {
                     newEntity.properties = entity.properties;
+                } else {
+                    throw new Exception(BaasioError.ERROR_ENTITY_TYPE_MISMATCHED);
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
+            } else {
+                newEntity.setType(entity.getType());
+                newEntity.properties = entity.properties;
             }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return newEntity;
     }
@@ -464,9 +462,9 @@ public class BaasioBaseEntity {
                 sourceUuid, relationship, targetType, targetUuid);
 
         if (response != null) {
-            BaasioBaseEntity sourceEntity = response.getFirstEntity();
-            if (!ObjectUtils.isEmpty(sourceEntity)) {
-                return sourceEntity;
+            BaasioBaseEntity connectedTagetEntity = response.getFirstEntity();
+            if (!ObjectUtils.isEmpty(connectedTagetEntity)) {
+                return connectedTagetEntity;
             }
 
             throw new BaasioException(BaasioError.ERROR_UNKNOWN_NORESULT_ENTITY);
@@ -494,6 +492,74 @@ public class BaasioBaseEntity {
             public BaasioBaseEntity doTask() throws BaasioException {
                 return BaasioBaseEntity.connect(sourceType, sourceUuid, relationship, targetType,
                         targetUuid);
+            }
+        }).execute();
+    }
+
+    /**
+     * Connect to a entity with relationship
+     * 
+     * @param relationship Relationship name
+     * @param targetType Target entity type
+     * @param targetUuid Target entity uuid or name
+     * @return Connected entity with class type
+     */
+    public BaasioBaseEntity connect(String relationship, String targetType, String targetUuid)
+            throws BaasioException {
+
+        BaasioBaseEntity entity = BaasioBaseEntity.connect(getType(), getUniqueKey(), relationship,
+                targetType, targetUuid);
+        return entity;
+    }
+
+    /**
+     * Connect to a entity with relationship. Executes asynchronously in
+     * background and the callbacks are called in the UI thread.
+     * 
+     * @param relationship Relationship name
+     * @param targetType Target entity type
+     * @param targetUuid Target entity uuid or name
+     * @param callback Result callback
+     */
+    public void connectInBackground(final String relationship, final String targetType,
+            final String targetUuid, final BaasioCallback<BaasioBaseEntity> callback) {
+        (new BaasioAsyncTask<BaasioBaseEntity>(callback) {
+            @Override
+            public BaasioBaseEntity doTask() throws BaasioException {
+                return connect(relationship, targetType, targetUuid);
+            }
+        }).execute();
+    }
+
+    /**
+     * Connect to a entity with relationship
+     * 
+     * @param relationship Relationship name
+     * @param target Target entity
+     * @return Connected entity with class type
+     */
+    public <T extends BaasioBaseEntity> BaasioBaseEntity connect(String relationship, T target)
+            throws BaasioException {
+
+        BaasioBaseEntity entity = BaasioBaseEntity.connect(getType(), getUniqueKey(), relationship,
+                target.getType(), target.getUniqueKey());
+        return entity;
+    }
+
+    /**
+     * Connect to a entity with relationship. Executes asynchronously in
+     * background and the callbacks are called in the UI thread.
+     * 
+     * @param relationship Relationship name
+     * @param target Target entity
+     * @param callback Result callback
+     */
+    public <T extends BaasioBaseEntity> void connectInBackground(final String relationship,
+            final T target, final BaasioCallback<BaasioBaseEntity> callback) {
+        (new BaasioAsyncTask<BaasioBaseEntity>(callback) {
+            @Override
+            public BaasioBaseEntity doTask() throws BaasioException {
+                return connect(relationship, target);
             }
         }).execute();
     }
@@ -564,6 +630,74 @@ public class BaasioBaseEntity {
             @Override
             public BaasioBaseEntity doTask() throws BaasioException {
                 return disconnect(sourceType, sourceUuid, relationship, targetType, targetUuid);
+            }
+        }).execute();
+    }
+
+    /**
+     * Disconnect to a entity with relationship
+     * 
+     * @param relationship Relationship name
+     * @param targetType Target entity type
+     * @param targetUuid Target entity uuid or name
+     * @return Disconnected entity with class type
+     */
+    public BaasioBaseEntity disconnect(String relationship, String targetType, String targetUuid)
+            throws BaasioException {
+
+        BaasioBaseEntity entity = BaasioBaseEntity.disconnect(getType(), getUniqueKey(),
+                relationship, targetType, targetUuid);
+        return entity;
+    }
+
+    /**
+     * Disconnect to a entity with relationship. Executes asynchronously in
+     * background and the callbacks are called in the UI thread.
+     * 
+     * @param relationship Relationship name
+     * @param targetType Target entity type
+     * @param targetUuid Target entity uuid or name
+     * @param callback Result callback
+     */
+    public void disconnectInBackground(final String relationship, final String targetType,
+            final String targetUuid, final BaasioCallback<BaasioBaseEntity> callback) {
+        (new BaasioAsyncTask<BaasioBaseEntity>(callback) {
+            @Override
+            public BaasioBaseEntity doTask() throws BaasioException {
+                return disconnect(relationship, targetType, targetUuid);
+            }
+        }).execute();
+    }
+
+    /**
+     * Disconnect to a entity with relationship
+     * 
+     * @param relationship Relationship name
+     * @param target Target entity
+     * @return Disconnected entity with class type
+     */
+    public <T extends BaasioBaseEntity> BaasioBaseEntity disconnect(String relationship, T target)
+            throws BaasioException {
+
+        BaasioBaseEntity entity = BaasioBaseEntity.disconnect(getType(), getUniqueKey(),
+                relationship, target.getType(), target.getUniqueKey());
+        return entity;
+    }
+
+    /**
+     * Disconnect to a entity with relationship. Executes asynchronously in
+     * background and the callbacks are called in the UI thread.
+     * 
+     * @param relationship Relationship name
+     * @param target Target entity
+     * @param callback Result callback
+     */
+    public <T extends BaasioBaseEntity> void disconnectInBackground(final String relationship,
+            final T target, final BaasioCallback<BaasioBaseEntity> callback) {
+        (new BaasioAsyncTask<BaasioBaseEntity>(callback) {
+            @Override
+            public BaasioBaseEntity doTask() throws BaasioException {
+                return disconnect(relationship, target);
             }
         }).execute();
     }

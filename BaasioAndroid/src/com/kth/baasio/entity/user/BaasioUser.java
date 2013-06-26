@@ -552,12 +552,12 @@ public class BaasioUser extends BaasioBaseEntity {
             throw new IllegalArgumentException(BaasioError.ERROR_MISSING_TYPE);
         }
 
-        if (ObjectUtils.isEmpty(getUuid()) && ObjectUtils.isEmpty(getUsername())) {
+        if (ObjectUtils.isEmpty(getUniqueKey())) {
             throw new IllegalArgumentException(BaasioError.ERROR_MISSING_USER_UUID_OR_USERNAME);
         }
 
         BaasioResponse response = Baas.io().apiRequest(HttpMethod.PUT, null, this, getType(),
-                getUuid().toString());
+                getUniqueKey());
 
         if (response != null) {
             BaasioUser entity = response.getFirstEntity().toType(BaasioUser.class);
@@ -599,12 +599,12 @@ public class BaasioUser extends BaasioBaseEntity {
         BaasioUser current = Baas.io().getSignedInUser();
         if (!ObjectUtils.isEmpty(current)) {
             if (!current.getUsername().equals(getUsername())) {
-                LogUtils.LOGV(TAG, "Warning!! You try to delete a user who's not you.");
+                LogUtils.LOGW(TAG, "Warning!! You try to delete a user who's not you.");
             }
         }
 
         BaasioResponse response = Baas.io().apiRequest(HttpMethod.DELETE, null, null, getType(),
-                getUuid().toString());
+                getUniqueKey());
 
         if (response != null) {
             BaasioUser entity = response.getFirstEntity().toType(BaasioUser.class);
@@ -634,142 +634,6 @@ public class BaasioUser extends BaasioBaseEntity {
             @Override
             public BaasioUser doTask() throws BaasioException {
                 return unsubscribe(context);
-            }
-        }).execute();
-    }
-
-    /**
-     * Connect to a entity with relationship
-     * 
-     * @param relationship Relationship name
-     * @param targetType Target entity type
-     * @param targetUuid Target entity uuid or name
-     * @return Connected user entity with class type
-     */
-    public BaasioUser connect(String relationship, String targetType, String targetUuid)
-            throws BaasioException {
-
-        BaasioBaseEntity entity = BaasioBaseEntity.connect(getType(), getUniqueKey(), relationship,
-                targetType, targetUuid);
-        return entity.toType(BaasioUser.class);
-    }
-
-    /**
-     * Connect to a entity with relationship. Executes asynchronously in
-     * background and the callbacks are called in the UI thread.
-     * 
-     * @param relationship Relationship name
-     * @param targetType Target entity type
-     * @param targetUuid Target entity uuid or name
-     * @param callback Result callback
-     */
-    public void connectInBackground(final String relationship, final String targetType,
-            final String targetUuid, final BaasioCallback<BaasioUser> callback) {
-        (new BaasioAsyncTask<BaasioUser>(callback) {
-            @Override
-            public BaasioUser doTask() throws BaasioException {
-                return connect(relationship, targetType, targetUuid);
-            }
-        }).execute();
-    }
-
-    /**
-     * Connect to a entity with relationship
-     * 
-     * @param relationship Relationship name
-     * @param target Target entity
-     * @return Connected user entity with class type
-     */
-    public <T extends BaasioBaseEntity> BaasioUser connect(String relationship, T target)
-            throws BaasioException {
-
-        BaasioBaseEntity entity = BaasioBaseEntity.connect(getType(), getUniqueKey(), relationship,
-                target.getType(), target.getUniqueKey());
-        return entity.toType(BaasioUser.class);
-    }
-
-    /**
-     * Connect to a entity with relationship. Executes asynchronously in
-     * background and the callbacks are called in the UI thread.
-     * 
-     * @param relationship Relationship name
-     * @param target Target entity
-     * @param callback Result callback
-     */
-    public <T extends BaasioBaseEntity> void connectInBackground(final String relationship,
-            final T target, final BaasioCallback<BaasioUser> callback) {
-        (new BaasioAsyncTask<BaasioUser>(callback) {
-            @Override
-            public BaasioUser doTask() throws BaasioException {
-                return connect(relationship, target);
-            }
-        }).execute();
-    }
-
-    /**
-     * Disconnect to a entity with relationship
-     * 
-     * @param relationship Relationship name
-     * @param targetType Target entity type
-     * @param targetUuid Target entity uuid or name
-     * @return Disconnected user entity with class type
-     */
-    public BaasioUser disconnect(String relationship, String targetType, String targetUuid)
-            throws BaasioException {
-
-        BaasioBaseEntity entity = BaasioBaseEntity.disconnect(getType(), getUniqueKey(),
-                relationship, targetType, targetUuid);
-        return entity.toType(BaasioUser.class);
-    }
-
-    /**
-     * Disconnect to a entity with relationship. Executes asynchronously in
-     * background and the callbacks are called in the UI thread.
-     * 
-     * @param relationship Relationship name
-     * @param targetType Target entity type
-     * @param targetUuid Target entity uuid or name
-     * @param callback Result callback
-     */
-    public void disconnectInBackground(final String relationship, final String targetType,
-            final String targetUuid, final BaasioCallback<BaasioUser> callback) {
-        (new BaasioAsyncTask<BaasioUser>(callback) {
-            @Override
-            public BaasioUser doTask() throws BaasioException {
-                return disconnect(relationship, targetType, targetUuid);
-            }
-        }).execute();
-    }
-
-    /**
-     * Disconnect to a entity with relationship
-     * 
-     * @param relationship Relationship name
-     * @param target Target entity
-     * @return Disconnected user entity with class type
-     */
-    public <T extends BaasioBaseEntity> BaasioUser disconnect(String relationship, T target)
-            throws BaasioException {
-
-        BaasioBaseEntity entity = BaasioBaseEntity.disconnect(getType(), getUniqueKey(),
-                relationship, target.getType(), target.getUniqueKey());
-        return entity.toType(BaasioUser.class);
-    }
-
-    /**
-     * Disconnect to a entity with relationship. Executes asynchronously in
-     * background and the callbacks are called in the UI thread.
-     * 
-     * @param relationship Relationship name
-     * @param target Target entity
-     * @param callback Result callback
-     */
-    public <T extends BaasioBaseEntity> void disconnectInBackground(final String relationship,
-            final T target, final BaasioCallback<BaasioUser> callback) {
-        (new BaasioAsyncTask<BaasioUser>(callback) {
-            @Override
-            public BaasioUser doTask() throws BaasioException {
-                return disconnect(relationship, target);
             }
         }).execute();
     }
