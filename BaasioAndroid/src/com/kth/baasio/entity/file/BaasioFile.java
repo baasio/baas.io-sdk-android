@@ -13,6 +13,7 @@ import com.kth.baasio.callback.BaasioDownloadCallback;
 import com.kth.baasio.callback.BaasioUploadAsyncTask;
 import com.kth.baasio.callback.BaasioUploadCallback;
 import com.kth.baasio.entity.BaasioBaseEntity;
+import com.kth.baasio.entity.BaasioConnectableEntity;
 import com.kth.baasio.entity.file.multipart.FilePart;
 import com.kth.baasio.entity.file.multipart.FilePart.BaasioProgressListener;
 import com.kth.baasio.entity.file.multipart.MultipartEntity;
@@ -45,7 +46,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
-public class BaasioFile extends BaasioBaseEntity {
+public class BaasioFile extends BaasioConnectableEntity {
     private static final String TAG = makeLogTag(BaasioFile.class);
 
     public final static String ENTITY_TYPE = "file";
@@ -67,7 +68,7 @@ public class BaasioFile extends BaasioBaseEntity {
         setType(ENTITY_TYPE);
     }
 
-    public BaasioFile(BaasioBaseEntity entity) {
+    public BaasioFile(BaasioConnectableEntity entity) {
         super(entity);
     }
 

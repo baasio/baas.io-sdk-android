@@ -11,6 +11,7 @@ import com.kth.baasio.callback.BaasioSignInCallback;
 import com.kth.baasio.callback.BaasioSignUpAsyncTask;
 import com.kth.baasio.callback.BaasioSignUpCallback;
 import com.kth.baasio.entity.BaasioBaseEntity;
+import com.kth.baasio.entity.BaasioConnectableEntity;
 import com.kth.baasio.entity.push.BaasioPush;
 import com.kth.baasio.exception.BaasioError;
 import com.kth.baasio.exception.BaasioException;
@@ -32,7 +33,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class BaasioUser extends BaasioBaseEntity {
+public class BaasioUser extends BaasioConnectableEntity {
     private final static String TAG = LogUtils.makeLogTag(BaasioUser.class);
 
     public final static String ENTITY_TYPE = "user";
@@ -62,7 +63,7 @@ public class BaasioUser extends BaasioBaseEntity {
         setType(ENTITY_TYPE);
     }
 
-    public BaasioUser(BaasioBaseEntity entity) {
+    public BaasioUser(BaasioConnectableEntity entity) {
         super(entity);
     }
 

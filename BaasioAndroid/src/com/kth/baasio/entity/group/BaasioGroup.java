@@ -7,6 +7,7 @@ import com.kth.baasio.Baas;
 import com.kth.baasio.callback.BaasioAsyncTask;
 import com.kth.baasio.callback.BaasioCallback;
 import com.kth.baasio.entity.BaasioBaseEntity;
+import com.kth.baasio.entity.BaasioConnectableEntity;
 import com.kth.baasio.entity.user.BaasioUser;
 import com.kth.baasio.exception.BaasioError;
 import com.kth.baasio.exception.BaasioException;
@@ -20,7 +21,7 @@ import org.springframework.http.HttpMethod;
 
 import java.util.List;
 
-public class BaasioGroup extends BaasioBaseEntity {
+public class BaasioGroup extends BaasioConnectableEntity {
     public final static String ENTITY_TYPE = "group";
 
     public final static String PROPERTY_PATH = "path";
@@ -32,7 +33,7 @@ public class BaasioGroup extends BaasioBaseEntity {
         setType(ENTITY_TYPE);
     }
 
-    public BaasioGroup(BaasioBaseEntity entity) {
+    public BaasioGroup(BaasioConnectableEntity entity) {
         super(entity);
     }
 

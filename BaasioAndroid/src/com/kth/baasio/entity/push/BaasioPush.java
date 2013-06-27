@@ -175,8 +175,6 @@ public class BaasioPush {
 
                     throw new BaasioException(BaasioError.ERROR_UNKNOWN_NORESULT_ENTITY);
                 }
-
-                throw new BaasioException(BaasioError.ERROR_UNKNOWN_NO_RESPONSE_DATA);
             } catch (BaasioException e) {
                 LogUtils.LOGV(TAG, e.toString());
 

@@ -5,6 +5,7 @@ import com.kth.baasio.Baas;
 import com.kth.baasio.callback.BaasioAsyncTask;
 import com.kth.baasio.callback.BaasioCallback;
 import com.kth.baasio.entity.BaasioBaseEntity;
+import com.kth.baasio.entity.BaasioConnectableEntity;
 import com.kth.baasio.exception.BaasioError;
 import com.kth.baasio.exception.BaasioException;
 import com.kth.baasio.response.BaasioResponse;
@@ -12,7 +13,7 @@ import com.kth.baasio.utils.ObjectUtils;
 
 import org.springframework.http.HttpMethod;
 
-public class BaasioEntity extends BaasioBaseEntity {
+public class BaasioEntity extends BaasioConnectableEntity {
     public BaasioEntity() {
         super();
     }
@@ -21,7 +22,7 @@ public class BaasioEntity extends BaasioBaseEntity {
         super(type);
     }
 
-    public BaasioEntity(BaasioBaseEntity entity) {
+    public BaasioEntity(BaasioConnectableEntity entity) {
         super(entity);
     }
 
