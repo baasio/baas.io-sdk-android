@@ -8,6 +8,7 @@ import com.kth.baasio.callback.BaasioSignInCallback;
 import com.kth.baasio.callback.BaasioSignUpCallback;
 import com.kth.baasio.entity.push.BaasioDevice;
 import com.kth.baasio.entity.push.BaasioMessage;
+import com.kth.baasio.entity.push.BaasioPayload;
 import com.kth.baasio.entity.push.BaasioPush;
 import com.kth.baasio.entity.user.BaasioUser;
 import com.kth.baasio.exception.BaasioError;
@@ -193,10 +194,6 @@ public class Test004Push extends InstrumentationTestCase {
                     fail("Not target all msg");
                 }
 
-                if (!UnitTestConfig.PUSH_TARGET_ALL_MSG.equals(response.getPayload().getAlert())) {
-                    fail("Alert miss matched");
-                }
-
                 signal.countDown();
             }
 
@@ -230,14 +227,6 @@ public class Test004Push extends InstrumentationTestCase {
 
                 if (!BaasioMessage.TARGET_TYPE_USER.equalsIgnoreCase(response.getTarget())) {
                     fail("Not target user");
-                }
-
-                if (!UnitTestConfig.PUSH_TARGET_USER_MSG.equals(response.getPayload().getAlert())) {
-                    fail("Alert miss matched");
-                }
-
-                if (!response.getTo().contains(msg.getTo())) {
-                    fail("'To' value miss matched");
                 }
 
                 signal.countDown();
@@ -274,14 +263,6 @@ public class Test004Push extends InstrumentationTestCase {
 
                 if (!BaasioMessage.TARGET_TYPE_DEVICE.equalsIgnoreCase(response.getTarget())) {
                     fail("Not target device");
-                }
-
-                if (!UnitTestConfig.PUSH_TARGET_DEVICE_MSG.equals(response.getPayload().getAlert())) {
-                    fail("Alert miss matched");
-                }
-
-                if (!response.getTo().contains(msg.getTo())) {
-                    fail("'To' value miss matched");
                 }
 
                 signal.countDown();
@@ -321,11 +302,6 @@ public class Test004Push extends InstrumentationTestCase {
                     fail("Not platform gcm");
                 }
 
-                if (!UnitTestConfig.PUSH_TARGET_ANDROID_MSG
-                        .equals(response.getPayload().getAlert())) {
-                    fail("Alert miss matched");
-                }
-
                 signal.countDown();
             }
 
@@ -361,10 +337,6 @@ public class Test004Push extends InstrumentationTestCase {
 
                 if (!BaasioMessage.PLATFORM_TYPE_IOS.equalsIgnoreCase(response.getPlatform())) {
                     fail("Not platform ios");
-                }
-
-                if (!UnitTestConfig.PUSH_TARGET_IOS_MSG.equals(response.getPayload().getAlert())) {
-                    fail("Alert miss matched");
                 }
 
                 signal.countDown();
@@ -403,11 +375,6 @@ public class Test004Push extends InstrumentationTestCase {
                     fail("Not target all");
                 }
 
-                if (!(UnitTestConfig.PUSH_TARGET_ALL_MSG + UnitTestConfig.PUSH_RESERVED_MSG_POSTFIX)
-                        .equals(response.getPayload().getAlert())) {
-                    fail("Alert miss matched");
-                }
-
                 signal.countDown();
             }
 
@@ -439,11 +406,6 @@ public class Test004Push extends InstrumentationTestCase {
 
                 if (!BaasioMessage.TARGET_TYPE_TAG.equalsIgnoreCase(response.getTarget())) {
                     fail("Not target all");
-                }
-
-                if (!UnitTestConfig.PUSH_TARGET_TAG_SHOULD_RECEIVE.equals(response.getPayload()
-                        .getAlert())) {
-                    fail("Alert miss matched");
                 }
 
                 signal.countDown();
@@ -479,9 +441,41 @@ public class Test004Push extends InstrumentationTestCase {
                     fail("Not target all");
                 }
 
-                if (!UnitTestConfig.PUSH_TARGET_TAG_SHOULD_NOT_RECEIVE.equals(response.getPayload()
-                        .getAlert())) {
-                    fail("Alert miss matched");
+                signal.countDown();
+            }
+
+            @Override
+            public void onException(BaasioException e) {
+                LogUtils.LOGE(TAG, e.toString());
+                fail(e.toString());
+
+                signal.countDown();
+            }
+        });
+
+        signal.await();
+    }
+
+    public void test308SendTargetAllMsgWithCustomField() throws InterruptedException {
+        final CountDownLatch signal = new CountDownLatch(1);
+
+        BaasioPayload payload = new BaasioPayload();
+        payload.setAlert(UnitTestConfig.PUSH_TARGET_ALL_MSG_WITH_CUSTOM_FILED);
+        payload.setProperty(UnitTestConfig.PUSH_CUSTOM_FILED_KEY,
+                UnitTestConfig.PUSH_CUSTOM_FILED_VALUE);
+
+        BaasioMessage msg = new BaasioMessage();
+        msg.setPayload(payload);
+
+        BaasioPush.sendPushInBackground(msg, new BaasioCallback<BaasioMessage>() {
+
+            @Override
+            public void onResponse(BaasioMessage response) {
+                LogUtils.LOGV(TAG, response.toString());
+
+                if (!response.getPlatform().contains(BaasioMessage.PLATFORM_TYPE_GCM)
+                        || !response.getPlatform().contains(BaasioMessage.PLATFORM_TYPE_IOS)) {
+                    fail("Not target all msg");
                 }
 
                 signal.countDown();

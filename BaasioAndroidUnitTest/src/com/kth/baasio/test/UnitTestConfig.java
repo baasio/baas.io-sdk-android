@@ -86,6 +86,12 @@ public class UnitTestConfig {
 
     public static final String PUSH_RESERVED_MSG_POSTFIX = " + 예약발송";
 
+    public static final String PUSH_TARGET_ALL_MSG_WITH_CUSTOM_FILED = "전체발송_커스텀필드";
+
+    public static final String PUSH_CUSTOM_FILED_KEY = "custom";
+
+    public static final String PUSH_CUSTOM_FILED_VALUE = "커스텀 필드의 값";
+
     // Help Center
     public static final boolean HELPCENTER_RECOMMENDED_HELP = true;
 
