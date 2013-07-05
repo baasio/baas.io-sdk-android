@@ -15,6 +15,10 @@ public class UnitTestConfig {
 
     public static final String USER2_EMAIL = USER2_USERNAME + "@test.com";
 
+    public static final String USER1_UPDATED_PROPERTY_NAME = "updated";
+
+    public static final String USER1_UPDATED_PROPERTY_VALUE = "value";
+
     public static final String COMMON_PASSWORD = "test1234";
 
     public static final String CHANGE_PASSWORD = "test1231";

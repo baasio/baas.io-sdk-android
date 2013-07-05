@@ -10,6 +10,8 @@ import com.kth.baasio.entity.push.BaasioDevice;
 import com.kth.baasio.entity.user.BaasioUser;
 import com.kth.baasio.exception.BaasioError;
 import com.kth.baasio.exception.BaasioException;
+import com.kth.baasio.preferences.BaasioPreferences;
+import com.kth.baasio.utils.JsonUtils;
 import com.kth.baasio.utils.ObjectUtils;
 import com.kth.common.utils.LogUtils;
 
@@ -466,7 +468,61 @@ public class Test000Auth extends InstrumentationTestCase {
         signal.await();
     }
 
-    public void test312User1ResetPassword() throws InterruptedException {
+    public void test312User1Update() throws InterruptedException {
+        final CountDownLatch signal = new CountDownLatch(1);
+
+        BaasioUser user = Baas.io().getSignedInUser();
+        user.setProperty(UnitTestConfig.USER1_UPDATED_PROPERTY_NAME,
+                UnitTestConfig.USER1_UPDATED_PROPERTY_VALUE);
+
+        user.updateInBackground(getInstrumentation().getContext(),
+                new BaasioCallback<BaasioUser>() {
+
+                    @Override
+                    public void onResponse(BaasioUser response) {
+                        LogUtils.LOGV(TAG, response.toString());
+
+                        String value = response.getProperty(
+                                UnitTestConfig.USER1_UPDATED_PROPERTY_NAME).getTextValue();
+
+                        if (!value.equals(UnitTestConfig.USER1_UPDATED_PROPERTY_VALUE)) {
+                            fail("Updated property value is not matching.");
+                        }
+
+                        BaasioUser userFromSignedInUser = Baas.io().getSignedInUser();
+                        value = userFromSignedInUser.getProperty(
+                                UnitTestConfig.USER1_UPDATED_PROPERTY_NAME).getTextValue();
+
+                        if (!value.equals(UnitTestConfig.USER1_UPDATED_PROPERTY_VALUE)) {
+                            fail("Current user is not updated.");
+                        }
+
+                        String userString = BaasioPreferences.getUserString(getInstrumentation()
+                                .getContext());
+                        BaasioUser userFromPreferences = JsonUtils.parse(userString,
+                                BaasioUser.class);
+                        value = userFromPreferences.getProperty(
+                                UnitTestConfig.USER1_UPDATED_PROPERTY_NAME).getTextValue();
+
+                        if (!value.equals(UnitTestConfig.USER1_UPDATED_PROPERTY_VALUE)) {
+                            fail("Current user from Preferences is not updated.");
+                        }
+
+                        signal.countDown();
+                    }
+
+                    @Override
+                    public void onException(BaasioException e) {
+                        LogUtils.LOGE(TAG, e.toString());
+                        fail(e.toString());
+
+                        signal.countDown();
+                    }
+                });
+        signal.await();
+    }
+
+    public void test313User1ResetPassword() throws InterruptedException {
         final CountDownLatch signal = new CountDownLatch(1);
 
         BaasioUser.resetPasswordInBackground(new BaasioCallback<Boolean>() {

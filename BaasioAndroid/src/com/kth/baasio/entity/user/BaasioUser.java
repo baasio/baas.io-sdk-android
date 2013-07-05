@@ -548,7 +548,7 @@ public class BaasioUser extends BaasioConnectableEntity {
      * 
      * @return Updated entity
      */
-    public BaasioUser update() throws BaasioException {
+    public BaasioUser update(Context context) throws BaasioException {
         if (ObjectUtils.isEmpty(getType())) {
             throw new IllegalArgumentException(BaasioError.ERROR_MISSING_TYPE);
         }
@@ -563,6 +563,11 @@ public class BaasioUser extends BaasioConnectableEntity {
         if (response != null) {
             BaasioUser entity = response.getFirstEntity().toType(BaasioUser.class);
             if (!ObjectUtils.isEmpty(entity)) {
+                BaasioUser currentUser = Baas.io().getSignedInUser();
+                if (currentUser.getUsername().equals(entity.getUsername())) {
+                    Baas.io().setSignedInUser(entity);
+                    BaasioPreferences.setUserString(context, entity.toString());
+                }
                 return entity;
             }
 
@@ -578,11 +583,11 @@ public class BaasioUser extends BaasioConnectableEntity {
      * 
      * @param callback Result callback
      */
-    public void updateInBackground(final BaasioCallback<BaasioUser> callback) {
+    public void updateInBackground(final Context context, final BaasioCallback<BaasioUser> callback) {
         (new BaasioAsyncTask<BaasioUser>(callback) {
             @Override
             public BaasioUser doTask() throws BaasioException {
-                return update();
+                return update(context);
             }
         }).execute();
     }
