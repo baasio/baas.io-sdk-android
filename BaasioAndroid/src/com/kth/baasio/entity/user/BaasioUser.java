@@ -548,6 +548,53 @@ public class BaasioUser extends BaasioConnectableEntity {
      * 
      * @return Updated entity
      */
+    @Deprecated
+    public BaasioUser update() throws BaasioException {
+        if (ObjectUtils.isEmpty(getType())) {
+            throw new IllegalArgumentException(BaasioError.ERROR_MISSING_TYPE);
+        }
+
+        if (ObjectUtils.isEmpty(getUniqueKey())) {
+            throw new IllegalArgumentException(BaasioError.ERROR_MISSING_USER_UUID_OR_USERNAME);
+        }
+
+        BaasioResponse response = Baas.io().apiRequest(HttpMethod.PUT, null, this, getType(),
+                getUniqueKey());
+
+        if (response != null) {
+            BaasioUser entity = response.getFirstEntity().toType(BaasioUser.class);
+            if (!ObjectUtils.isEmpty(entity)) {
+                return entity;
+            }
+
+            throw new BaasioException(BaasioError.ERROR_UNKNOWN_NORESULT_ENTITY);
+        }
+
+        throw new BaasioException(BaasioError.ERROR_UNKNOWN_NO_RESPONSE_DATA);
+    }
+
+    /**
+     * Update entity from baas.io. Executes asynchronously in background and the
+     * callbacks are called in the UI thread.
+     * 
+     * @param callback Result callback
+     */
+    @Deprecated
+    public void updateInBackground(final BaasioCallback<BaasioUser> callback) {
+        (new BaasioAsyncTask<BaasioUser>(callback) {
+            @Override
+            public BaasioUser doTask() throws BaasioException {
+                return update();
+            }
+        }).execute();
+    }
+
+    /**
+     * Update user entity. If user is same with signed-in user, cached signed-in
+     * user data will be updated.
+     * 
+     * @return Updated entity
+     */
     public BaasioUser update(Context context) throws BaasioException {
         if (ObjectUtils.isEmpty(getType())) {
             throw new IllegalArgumentException(BaasioError.ERROR_MISSING_TYPE);
@@ -578,7 +625,8 @@ public class BaasioUser extends BaasioConnectableEntity {
     }
 
     /**
-     * Update entity from baas.io. Executes asynchronously in background and the
+     * Update user entity. If user is same with signed-in user, cached signed-in
+     * user data will be updated. Executes asynchronously in background and the
      * callbacks are called in the UI thread.
      * 
      * @param callback Result callback

@@ -13,6 +13,8 @@ import com.kth.baasio.utils.ObjectUtils;
 
 import org.springframework.http.HttpMethod;
 
+import java.util.List;
+
 public class BaasioEntity extends BaasioConnectableEntity {
     public BaasioEntity() {
         super();
@@ -86,6 +88,54 @@ public class BaasioEntity extends BaasioConnectableEntity {
             @Override
             public BaasioEntity doTask() throws BaasioException {
                 return save();
+            }
+        }).execute();
+    }
+
+    /**
+     * Save entities to baas.io. Entity type must be defined.
+     * 
+     * @param type Entity type
+     * @param entities List of entity
+     */
+    public static List<BaasioEntity> save(String type, List<BaasioEntity> entities)
+            throws BaasioException {
+        if (ObjectUtils.isEmpty(type)) {
+            throw new IllegalArgumentException(BaasioError.ERROR_MISSING_TYPE);
+        }
+
+        if (ObjectUtils.isEmpty(entities)) {
+            throw new IllegalArgumentException(BaasioError.ERROR_EMPTY_LIST);
+        }
+
+        for (BaasioEntity entry : entities) {
+            entry.setType(type);
+        }
+
+        BaasioResponse response = Baas.io().apiRequest(HttpMethod.POST, null, entities, type);
+
+        if (!ObjectUtils.isEmpty(response)) {
+            return BaasioBaseEntity.toType(response.getEntities(), BaasioEntity.class);
+        }
+
+        throw new BaasioException(BaasioError.ERROR_UNKNOWN_NO_RESPONSE_DATA);
+    }
+
+    /**
+     * Save entities to baas.io. Entity type must be defined. Executes
+     * asynchronously in background and the callbacks are called in the UI
+     * thread.
+     * 
+     * @param type Entity type
+     * @param entities List of entity
+     * @param callback Result callback
+     */
+    public static void saveInBackground(final String type, final List<BaasioEntity> entities,
+            final BaasioCallback<List<BaasioEntity>> callback) {
+        (new BaasioAsyncTask<List<BaasioEntity>>(callback) {
+            @Override
+            public List<BaasioEntity> doTask() throws BaasioException {
+                return save(type, entities);
             }
         }).execute();
     }

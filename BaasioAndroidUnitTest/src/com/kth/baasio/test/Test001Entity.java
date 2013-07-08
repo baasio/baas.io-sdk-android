@@ -20,6 +20,7 @@ import com.kth.common.utils.LogUtils;
 import android.os.AsyncTask;
 import android.test.InstrumentationTestCase;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
@@ -988,6 +989,71 @@ public class Test001Entity extends InstrumentationTestCase {
                 signal.countDown();
             }
         });
+        signal.await();
+    }
+
+    public void test323SaveEntities() throws InterruptedException {
+        final CountDownLatch signal = new CountDownLatch(1);
+
+        List<BaasioEntity> entities = new ArrayList<BaasioEntity>();
+
+        for (int i = 0; i < 10; i++) {
+            BaasioEntity entity = new BaasioEntity(UnitTestConfig.BULK_ENTITY_TYPE);
+            entity.setName(UnitTestConfig.BULK_ENTITY_NAME_PREFIX + i);
+            entity.setProperty(UnitTestConfig.ENTITY_PROPERTY_NAME + i, i);
+
+            entities.add(entity);
+        }
+
+        BaasioEntity.saveInBackground(UnitTestConfig.BULK_ENTITY_TYPE, entities,
+                new BaasioCallback<List<BaasioEntity>>() {
+
+                    @Override
+                    public void onResponse(List<BaasioEntity> response) {
+                        LogUtils.LOGV(TAG, response.toString());
+
+                        if (response.size() != 10) {
+                            fail("The number of entity is not 10");
+                        }
+                        signal.countDown();
+                    }
+
+                    @Override
+                    public void onException(BaasioException e) {
+                        LogUtils.LOGE(TAG, e.toString());
+                        fail(e.toString());
+
+                        signal.countDown();
+                    }
+                });
+        signal.await();
+    }
+
+    public void test324DeleteEntities() throws InterruptedException {
+        final CountDownLatch signal = new CountDownLatch(10);
+
+        for (int i = 0; i < 10; i++) {
+            BaasioEntity entity = new BaasioEntity(UnitTestConfig.BULK_ENTITY_TYPE);
+            entity.setName(UnitTestConfig.BULK_ENTITY_NAME_PREFIX + i);
+
+            entity.deleteInBackground(new BaasioCallback<BaasioEntity>() {
+
+                @Override
+                public void onResponse(BaasioEntity response) {
+                    LogUtils.LOGV(TAG, response.toString());
+
+                    signal.countDown();
+                }
+
+                @Override
+                public void onException(BaasioException e) {
+                    LogUtils.LOGE(TAG, e.toString());
+                    fail(e.toString());
+
+                    signal.countDown();
+                }
+            });
+        }
         signal.await();
     }
 

@@ -14,6 +14,8 @@ public final class BaasioError {
 
     public static final String ERROR_MISSING_GROUP_UUID_OR_PATH = "Missing group uuid or path";
 
+    public static final String ERROR_EMPTY_LIST = "List is empty";
+
     public static final String ERROR_MISSING_UUID = "Missing uuid";
 
     public static final String ERROR_MISSING_UUID_OR_NAME = "Missing uuid or name";

@@ -40,6 +40,10 @@ public class UnitTestConfig {
 
     public static final String RELATIONSHIP_NAME = "entity_relation";
 
+    public static final String BULK_ENTITY_TYPE = "bulk_test";
+
+    public static final String BULK_ENTITY_NAME_PREFIX = "test";
+
     // Group
     public static final String GROUP_PATH = "AndroidUnitTestGroup";
 
