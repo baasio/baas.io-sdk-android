@@ -525,21 +525,54 @@ public class Test000Auth extends InstrumentationTestCase {
     public void test313User1ResetPassword() throws InterruptedException {
         final CountDownLatch signal = new CountDownLatch(1);
 
-        BaasioUser.resetPasswordInBackground(new BaasioCallback<Boolean>() {
+        BaasioUser.resetPasswordInBackground(UnitTestConfig.USER1_EMAIL,
+                new BaasioCallback<Boolean>() {
 
-            @Override
-            public void onResponse(Boolean response) {
-                LogUtils.LOGV(TAG, response.toString());
-                signal.countDown();
-            }
+                    @Override
+                    public void onResponse(Boolean response) {
+                        LogUtils.LOGV(TAG, response.toString());
+                        signal.countDown();
+                    }
 
-            @Override
-            public void onException(BaasioException e) {
-                fail(e.toString());
+                    @Override
+                    public void onException(BaasioException e) {
+                        fail(e.toString());
 
-                signal.countDown();
-            }
-        });
+                        signal.countDown();
+                    }
+                });
+        signal.await();
+    }
+
+    public void test314User1WrongPassword() throws InterruptedException {
+        final CountDownLatch signal = new CountDownLatch(1);
+
+        BaasioUser.signInInBackground(getInstrumentation().getContext(),
+                UnitTestConfig.USER1_USERNAME, UnitTestConfig.COMMON_PASSWORD + "wrong",
+                new BaasioSignInCallback() {
+
+                    @Override
+                    public void onException(BaasioException e) {
+                        LogUtils.LOGE(TAG, e.toString());
+                        if (!e.getStatusCode().equals("401")) {
+                            fail("wrong status code");
+                        }
+                        if (!(e.getErrorCode() == 201)) {
+                            fail("wrong error code");
+                        }
+
+                        signal.countDown();
+                    }
+
+                    @Override
+                    public void onResponse(BaasioUser response) {
+                        LogUtils.LOGV(TAG, response.toString());
+                        fail("Should not be signined");
+
+                        signal.countDown();
+                    }
+                });
+
         signal.await();
     }
 

@@ -530,7 +530,12 @@ public class BaasioQuery implements Cloneable {
                         getType() + getQueryString(false));
             }
         } else {
-            response = Baas.io().apiRequest(HttpMethod.GET, null, null, getRawString());
+            if (hasPrevEntities()) {
+                response = Baas.io().apiRequest(HttpMethod.GET, null, null,
+                        getRawString() + "&cursor=" + getPrevCursor());
+            } else {
+                throw new BaasioException(BaasioError.ERROR_QUERY_NO_MORE_PREV);
+            }
         }
 
         if (!ObjectUtils.isEmpty(response)) {
@@ -593,7 +598,12 @@ public class BaasioQuery implements Cloneable {
                         getType() + getQueryString(true));
             }
         } else {
-            response = Baas.io().apiRequest(HttpMethod.GET, null, null, getRawString());
+            if (hasNextEntities()) {
+                response = Baas.io().apiRequest(HttpMethod.GET, null, null,
+                        getRawString() + "&cursor=" + getNextCursor());
+            } else {
+                throw new BaasioException(BaasioError.ERROR_QUERY_NO_MORE_NEXT);
+            }
         }
 
         if (!ObjectUtils.isEmpty(response)) {

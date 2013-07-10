@@ -13,6 +13,7 @@ import com.kth.baasio.utils.ObjectUtils;
 
 import org.springframework.http.HttpMethod;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class BaasioEntity extends BaasioConnectableEntity {
@@ -108,11 +109,15 @@ public class BaasioEntity extends BaasioConnectableEntity {
             throw new IllegalArgumentException(BaasioError.ERROR_EMPTY_LIST);
         }
 
-        for (BaasioEntity entry : entities) {
-            entry.setType(type);
+        List<BaasioEntity> list = new ArrayList<BaasioEntity>(entities);
+        for (BaasioEntity entry : list) {
+            entry.setType(null);
+            entry.setUuid(null);
+            entry.setCreated(null);
+            entry.setModified(null);
         }
 
-        BaasioResponse response = Baas.io().apiRequest(HttpMethod.POST, null, entities, type);
+        BaasioResponse response = Baas.io().apiRequest(HttpMethod.POST, null, list, type);
 
         if (!ObjectUtils.isEmpty(response)) {
             return BaasioBaseEntity.toType(response.getEntities(), BaasioEntity.class);

@@ -544,7 +544,8 @@ public class BaasioUser extends BaasioConnectableEntity {
     }
 
     /**
-     * Update entity from baas.io.
+     * Update user entity from baas.io. If update current user entity, use
+     * update(context) function instead.
      * 
      * @return Updated entity
      */
@@ -574,8 +575,10 @@ public class BaasioUser extends BaasioConnectableEntity {
     }
 
     /**
-     * Update entity from baas.io. Executes asynchronously in background and the
-     * callbacks are called in the UI thread.
+     * Update entity from baas.io. If update current user entity, use
+     * updateInBackground(context, callback) function instead. Executes
+     * asynchronously in background and the callbacks are called in the UI
+     * thread.
      * 
      * @param callback Result callback
      */
@@ -744,6 +747,11 @@ public class BaasioUser extends BaasioConnectableEntity {
      * @param email Email or username or user's uuid to reset password
      */
     public static Uri getResetPasswordUrl(String email) {
+        if (ObjectUtils.isEmpty(email)) {
+            LogUtils.LOGE(TAG, "getResetPasswordUrl: " + BaasioError.ERROR_MISSING_EMAIL);
+            return null;
+        }
+
         String url = UrlUtils.path(Baas.io().getBaasioUrl(), Baas.io().getBaasioId(), Baas.io()
                 .getApplicationId(), BaasioUser.ENTITY_TYPE, email, "resetpw");
 
@@ -753,16 +761,16 @@ public class BaasioUser extends BaasioConnectableEntity {
     /**
      * Proceed sending email for reset password.
      * 
+     * @param email Email or username or user's uuid to reset password
      * @return If true, email for reset password has been sent successfully.
      */
-    public static boolean resetPassword() throws BaasioException {
-        BaasioUser user = Baas.io().getSignedInUser();
-        if (ObjectUtils.isEmpty(user)) {
-            throw new IllegalArgumentException(BaasioError.ERROR_NEED_SIGNIN);
+    public static boolean resetPassword(String email) throws BaasioException {
+        if (ObjectUtils.isEmpty(email)) {
+            throw new IllegalArgumentException(BaasioError.ERROR_MISSING_EMAIL);
         }
 
         BaasioResponse response = Baas.io().apiRequest(HttpMethod.POST, null, null,
-                BaasioUser.ENTITY_TYPE, user.getUniqueKey(), "resetpw");
+                BaasioUser.ENTITY_TYPE, email, "resetpw");
 
         if (response != null) {
             return true;
@@ -775,13 +783,15 @@ public class BaasioUser extends BaasioConnectableEntity {
      * Proceed sending email for reset password. Executes asynchronously in
      * background and the callbacks are called in the UI thread.
      * 
+     * @param email Email or username or user's uuid to reset password
      * @param callback Result callback
      */
-    public static void resetPasswordInBackground(final BaasioCallback<Boolean> callback) {
+    public static void resetPasswordInBackground(final String email,
+            final BaasioCallback<Boolean> callback) {
         (new BaasioAsyncTask<Boolean>(callback) {
             @Override
             public Boolean doTask() throws BaasioException {
-                return resetPassword();
+                return resetPassword(email);
             }
         }).execute();
     }

@@ -84,6 +84,7 @@ public class BaasioConnectableEntity extends BaasioBaseEntity {
      * @param relationship Relationship name
      * @param targetType Target entity type
      * @param targetUuid Target entity uuid or name
+     * @param t Result class type
      * @param callback Result callback
      */
     public <T extends BaasioBaseEntity> void connectInBackground(final String relationship,
@@ -136,6 +137,7 @@ public class BaasioConnectableEntity extends BaasioBaseEntity {
      * 
      * @param relationship Relationship name
      * @param target Target entity
+     * @param t Result class type
      * @return Connected entity
      */
     public <T extends BaasioBaseEntity> T connect(String relationship, T target, Class<T> t)
@@ -153,6 +155,7 @@ public class BaasioConnectableEntity extends BaasioBaseEntity {
      * 
      * @param relationship Relationship name
      * @param target Target entity
+     * @param t Result class type
      * @param callback Result callback
      */
     public <T extends BaasioBaseEntity> void connectInBackground(final String relationship,
@@ -224,6 +227,7 @@ public class BaasioConnectableEntity extends BaasioBaseEntity {
      * @param relationship Relationship name
      * @param targetType Target entity type
      * @param targetUuid Target entity uuid or name
+     * @param t Result class type
      * @param callback Result callback
      */
     public <T extends BaasioBaseEntity> void disconnectInBackground(final String relationship,
@@ -275,6 +279,7 @@ public class BaasioConnectableEntity extends BaasioBaseEntity {
      * 
      * @param relationship Relationship name
      * @param target Target entity
+     * @param t Result class type
      * @return Disconnected entity with class type
      */
     public <T extends BaasioBaseEntity> T disconnect(String relationship, T target, Class<T> t)
@@ -291,6 +296,7 @@ public class BaasioConnectableEntity extends BaasioBaseEntity {
      * 
      * @param relationship Relationship name
      * @param target Target entity
+     * @param t Result class type
      * @param callback Result callback
      */
     public <T extends BaasioBaseEntity> void disconnectInBackground(final String relationship,
