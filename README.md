@@ -14,8 +14,8 @@ baas.io에서 제공되는 Android SDK는 REST API에 익숙하지 않은 Androi
 - <a href="https://github.com/baasio/baas.io-sdk-android/wiki/Getting-Started" target="_blank">Google Cloud Messaging Service</a><br>
 	- gcm.jar
 - <a href="http://www.springsource.org/spring-android" target="_blank">Spring for android</a><br>
-	- spring-android-core-1.0.0.RELEASE.jar
-	- spring-android-rest-template-1.0.0.RELEASE.jar
+	- spring-android-core-1.0.1.RELEASE.jar
+	- spring-android-rest-template-1.0.1.RELEASE.jar
 - <a href="http://jackson.codehaus.org/" target="_blank">Jackson Java JSON-processor</a><br>
 	- jackson-core-asl-1.9.1.jar
 	- jackson-mapper-asl-1.9.1.jar
