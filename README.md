@@ -24,8 +24,8 @@ baas.io에서 제공되는 Android SDK는 REST API에 익숙하지 않은 Androi
 
 ***다운로드***
 
-- [baas.io Android SDK 다운로드(.zip)](http://baasio.github.com/baas.io-sdk-android/libraries/baas.io-sdk-android-v0.8.2.zip)
-	- 최신(v0.8.2) 라이브러리 다운로드(jar)
+- [baas.io Android SDK 다운로드](https://github.com/baasio/baas.io-sdk-android/wiki/Version-History)
+
 - [Sample Project(Kitchen Sink)](https://github.com/baasio/baas.io-sample-android/archive/master.zip)
 	- baas.io의 기능별로 구현된 샘플
 - [Startup Project](https://github.com/baasio/baas.io-startup-android/archive/master.zip)
