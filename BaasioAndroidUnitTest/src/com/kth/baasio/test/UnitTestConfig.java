@@ -9,7 +9,7 @@ public class UnitTestConfig {
     // Auth
     public static final String USER1_USERNAME = "android_unit_test1";
 
-    public static final String USER1_EMAIL = USER1_USERNAME + "@test.com";
+    public static final String USER1_EMAIL = "craptacle@gmail.com";
 
     public static final String USER2_USERNAME = "android_unit_test2";
 
