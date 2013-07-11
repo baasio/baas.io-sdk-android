@@ -64,7 +64,7 @@ public final class BaasioError {
 
     public static final String ERROR_GCM_MISSING_REGID = "Missing device token(regId)";
 
-    public static final String ERROR_GCM_TAG_LENGTH_EXCEED = "Max tag length is 12";
+    public static final String ERROR_GCM_TAG_LENGTH_EXCEED = "Max tag length is 36";
 
     public static final String ERROR_GCM_TAG_PATTERN_MISS_MATCHED = "Tags only allowed a-z, A-Z, 0-9, hyphen, underscore characters";// "^[a-zA-Z0-9-_]*$"
 
