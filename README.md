@@ -42,7 +42,7 @@ baas.io에서 제공되는 Android SDK는 REST API에 익숙하지 않은 Androi
 	- baas.io SDK를 이용하여 앱을 생성하는 것을 따라 할 수 있도록 단계별로 설명하고 있습니다. 
 - <a href="https://github.com/baasio/baas.io-sdk-android/wiki/Android-SDK-Guide" target="_blank">SDK Guide</a><br>
 	- baas.io SDK의 구조와 사용법을 기능별로 설명하고 있습니다.
-- <a href="https://github.com/baasio/baas.io-sdk-android/wiki/Facebook" target="_blank">Facebook Login</a><br>
+- <a href="https://github.com/baasio/baas.io-sdk-android/wiki/Facebook-Guide" target="_blank">Facebook Guide</a><br>
 	- Facebook 로그인을 통해 baas.io에 가입/로그인하는 방법을 설명하고 있습니다.
 - <a href="http://baasio.github.io/baas.io-sdk-android/api" target="_blank">Reference</a><br>
 	- Javadoc으로 각 클래스와 매소드를 설명합니다.
