@@ -35,6 +35,23 @@ public class JsonUtils {
         }
     }
 
+    public static Integer getIntegerProperty(Map<String, JsonNode> properties, String name) {
+        JsonNode value = properties.get(name);
+        if (value != null) {
+            return value.asInt(0);
+        }
+        return null;
+    }
+
+    public static void setIntegerProperty(Map<String, JsonNode> properties, String name,
+            Integer value) {
+        if (value == null) {
+            properties.remove(name);
+        } else {
+            properties.put(name, JsonNodeFactory.instance.numberNode(value));
+        }
+    }
+
     public static Long getLongProperty(Map<String, JsonNode> properties, String name) {
         JsonNode value = properties.get(name);
         if (value != null) {
@@ -51,12 +68,20 @@ public class JsonUtils {
         }
     }
 
-    public static void setFloatProperty(Map<String, JsonNode> properties, String name, Float value) {
+    public static void setDoubleProperty(Map<String, JsonNode> properties, String name, Double value) {
         if (value == null) {
             properties.remove(name);
         } else {
             properties.put(name, JsonNodeFactory.instance.numberNode(value));
         }
+    }
+
+    public static Double getDoubleProperty(Map<String, JsonNode> properties, String name) {
+        JsonNode value = properties.get(name);
+        if (value != null) {
+            return value.asDouble();
+        }
+        return null;
     }
 
     public static Boolean getBooleanProperty(Map<String, JsonNode> properties, String name) {

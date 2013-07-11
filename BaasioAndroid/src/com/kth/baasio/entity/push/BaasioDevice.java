@@ -3,7 +3,7 @@ package com.kth.baasio.entity.push;
 
 import static org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion.NON_NULL;
 
-import com.kth.baasio.entity.BaasioBaseEntity;
+import com.kth.baasio.entity.BaasioConnectableEntity;
 import com.kth.baasio.utils.JsonUtils;
 import com.kth.baasio.utils.ObjectUtils;
 
@@ -12,7 +12,7 @@ import org.codehaus.jackson.map.annotate.JsonSerialize;
 
 import java.util.List;
 
-public class BaasioDevice extends BaasioBaseEntity {
+public class BaasioDevice extends BaasioConnectableEntity {
 
     public final static String ENTITY_TYPE = "device";
 
@@ -32,7 +32,7 @@ public class BaasioDevice extends BaasioBaseEntity {
         setPlatform(PLATFORM_TYPE_GCM);
     }
 
-    public BaasioDevice(BaasioBaseEntity entity) {
+    public BaasioDevice(BaasioConnectableEntity entity) {
         super(entity);
     }
 

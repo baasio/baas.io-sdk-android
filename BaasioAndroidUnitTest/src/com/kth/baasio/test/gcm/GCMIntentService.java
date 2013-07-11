@@ -22,6 +22,7 @@ import static com.kth.common.utils.LogUtils.LOGW;
 import static com.kth.common.utils.LogUtils.makeLogTag;
 
 import com.google.android.gcm.GCMBaseIntentService;
+import com.kth.baasio.entity.push.BaasioPayload;
 import com.kth.baasio.entity.push.BaasioPush;
 import com.kth.baasio.exception.BaasioException;
 import com.kth.baasio.exception.BaasioRuntimeException;
@@ -29,8 +30,10 @@ import com.kth.baasio.test.BaasioConfig;
 import com.kth.baasio.test.BuildConfig;
 import com.kth.baasio.test.MainActivity;
 import com.kth.baasio.test.R;
+import com.kth.baasio.test.UnitTestConfig;
 import com.kth.baasio.utils.JsonUtils;
 import com.kth.baasio.utils.ObjectUtils;
+import com.kth.common.utils.LogUtils;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -113,13 +116,20 @@ public class GCMIntentService extends GCMBaseIntentService {
     private static void generateNotification(Context context, String message) {
         String body;
         try {
-            GcmMessage msg = JsonUtils.parse(message, GcmMessage.class);
-            if (msg == null || msg.aps == null) {
+            LogUtils.LOGE(TAG, "GCM Received: " + message);
+            BaasioPayload msg = JsonUtils.parse(message, BaasioPayload.class);
+            if (msg == null) {
                 return;
             }
 
-            if (!ObjectUtils.isEmpty(msg.aps.getAlert())) {
-                body = msg.aps.getAlert().replace("\\r\\n", "\n");
+            if (!ObjectUtils.isEmpty(msg.getAlert())) {
+                body = msg.getAlert().replace("\\r\\n", "\n");
+                if (!ObjectUtils.isEmpty(msg.getProperty(UnitTestConfig.PUSH_CUSTOM_FILED_KEY))) {
+                    body = body + "("
+                            + msg.getProperty(UnitTestConfig.PUSH_CUSTOM_FILED_KEY).getTextValue()
+                            + ")";
+                }
+
             } else {
                 return;
             }

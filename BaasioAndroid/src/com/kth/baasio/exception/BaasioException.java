@@ -281,8 +281,8 @@ public class BaasioException extends Exception {
          * @param name
          * @param value
          */
-        public void setProperty(String name, float value) {
-            JsonUtils.setFloatProperty(properties, name, value);
+        public void setProperty(String name, double value) {
+            JsonUtils.setDoubleProperty(properties, name, value);
         }
 
         @Override

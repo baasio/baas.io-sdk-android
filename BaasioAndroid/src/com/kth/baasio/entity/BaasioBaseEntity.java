@@ -261,8 +261,8 @@ public class BaasioBaseEntity {
      * @param name Property name
      * @param value Property value
      */
-    public void setProperty(String name, float value) {
-        JsonUtils.setFloatProperty(properties, name, value);
+    public void setProperty(String name, double value) {
+        JsonUtils.setDoubleProperty(properties, name, value);
     }
 
     @Override
@@ -294,23 +294,21 @@ public class BaasioBaseEntity {
             return null;
         }
         T newEntity = null;
-        if (entity.getClass().isAssignableFrom(t)) {
-            try {
-                newEntity = (t.newInstance());
+        try {
+            newEntity = (t.newInstance());
 
-                if (newEntity.getType() != null) {
-                    if (newEntity.getType().equals(entity.getType())) {
-                        newEntity.properties = entity.properties;
-                    } else {
-                        throw new Exception(BaasioError.ERROR_ENTITY_TYPE_MISMATCHED);
-                    }
-                } else {
-                    newEntity.setType(entity.getType());
+            if (newEntity.getType() != null) {
+                if (newEntity.getType().equals(entity.getType())) {
                     newEntity.properties = entity.properties;
+                } else {
+                    throw new Exception(BaasioError.ERROR_ENTITY_TYPE_MISMATCHED);
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
+            } else {
+                newEntity.setType(entity.getType());
+                newEntity.properties = entity.properties;
             }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return newEntity;
     }
@@ -427,144 +425,4 @@ public class BaasioBaseEntity {
         return uniqueKey;
     }
 
-    /**
-     * Connect to a entity with relationship
-     * 
-     * @param sourceType Source entity type
-     * @param sourceUuid Source entity uuid or name
-     * @param relationship Relationship name
-     * @param targetType Target entity type
-     * @param targetUuid Target entity uuid or name
-     * @return Connected entity
-     */
-    public static <T extends BaasioBaseEntity> BaasioBaseEntity connect(String sourceType,
-            String sourceUuid, String relationship, String targetType, String targetUuid)
-            throws BaasioException {
-        if (ObjectUtils.isEmpty(sourceType)) {
-            throw new IllegalArgumentException(BaasioError.ERROR_MISSING_TYPE);
-        }
-
-        if (ObjectUtils.isEmpty(sourceUuid)) {
-            throw new IllegalArgumentException(BaasioError.ERROR_MISSING_UUID);
-        }
-
-        if (ObjectUtils.isEmpty(targetType)) {
-            throw new IllegalArgumentException(BaasioError.ERROR_MISSING_TYPE);
-        }
-
-        if (ObjectUtils.isEmpty(targetUuid)) {
-            throw new IllegalArgumentException(BaasioError.ERROR_MISSING_UUID);
-        }
-
-        if (ObjectUtils.isEmpty(relationship)) {
-            throw new IllegalArgumentException(BaasioError.ERROR_MISSING_RELATIONSHIP);
-        }
-
-        BaasioResponse response = Baas.io().apiRequest(HttpMethod.POST, null, null, sourceType,
-                sourceUuid, relationship, targetType, targetUuid);
-
-        if (response != null) {
-            BaasioBaseEntity sourceEntity = response.getFirstEntity();
-            if (!ObjectUtils.isEmpty(sourceEntity)) {
-                return sourceEntity;
-            }
-
-            throw new BaasioException(BaasioError.ERROR_UNKNOWN_NORESULT_ENTITY);
-        }
-
-        throw new BaasioException(BaasioError.ERROR_UNKNOWN_NO_RESPONSE_DATA);
-    }
-
-    /**
-     * Connect to a entity with relationship. Executes asynchronously in
-     * background and the callbacks are called in the UI thread.
-     * 
-     * @param sourceType Source entity type
-     * @param sourceUuid Source entity uuid or name
-     * @param relationship Relationship name
-     * @param targetType Target entity type
-     * @param targetUuid Target entity uuid or name
-     * @param callback Result callback
-     */
-    public static void connectInBackground(final String sourceType, final String sourceUuid,
-            final String relationship, final String targetType, final String targetUuid,
-            final BaasioCallback<BaasioBaseEntity> callback) {
-        (new BaasioAsyncTask<BaasioBaseEntity>(callback) {
-            @Override
-            public BaasioBaseEntity doTask() throws BaasioException {
-                return BaasioBaseEntity.connect(sourceType, sourceUuid, relationship, targetType,
-                        targetUuid);
-            }
-        }).execute();
-    }
-
-    /**
-     * Disconnect to a entity with relationship
-     * 
-     * @param sourceType Source entity type
-     * @param sourceUuid Source entity uuid or name
-     * @param relationship Relationship name
-     * @param targetType Target entity type
-     * @param targetUuid Target entity uuid or name
-     * @return Disconnected entity
-     */
-    public static <T extends BaasioBaseEntity> BaasioBaseEntity disconnect(String sourceType,
-            String sourceUuid, String relationship, String targetType, String targetUuid)
-            throws BaasioException {
-        if (ObjectUtils.isEmpty(sourceType)) {
-            throw new IllegalArgumentException(BaasioError.ERROR_MISSING_TYPE);
-        }
-
-        if (ObjectUtils.isEmpty(sourceUuid)) {
-            throw new IllegalArgumentException(BaasioError.ERROR_MISSING_UUID);
-        }
-
-        if (ObjectUtils.isEmpty(targetType)) {
-            throw new IllegalArgumentException(BaasioError.ERROR_MISSING_TYPE);
-        }
-
-        if (ObjectUtils.isEmpty(targetUuid)) {
-            throw new IllegalArgumentException(BaasioError.ERROR_MISSING_TYPE);
-        }
-
-        if (ObjectUtils.isEmpty(relationship)) {
-            throw new IllegalArgumentException(BaasioError.ERROR_MISSING_RELATIONSHIP);
-        }
-
-        BaasioResponse response = Baas.io().apiRequest(HttpMethod.DELETE, null, null, sourceType,
-                sourceUuid, relationship, targetType, targetUuid);
-
-        if (response != null) {
-            BaasioBaseEntity result = response.getFirstEntity();
-            if (!ObjectUtils.isEmpty(result)) {
-                return result;
-            }
-
-            throw new BaasioException(BaasioError.ERROR_UNKNOWN_NORESULT_ENTITY);
-        }
-
-        throw new BaasioException(BaasioError.ERROR_UNKNOWN_NO_RESPONSE_DATA);
-    }
-
-    /**
-     * Disconnect to a entity with relationship. Executes asynchronously in
-     * background and the callbacks are called in the UI thread.
-     * 
-     * @param sourceType Source entity type
-     * @param sourceUuid Source entity uuid or name
-     * @param relationship Relationship name
-     * @param targetType Target entity type
-     * @param targetUuid Target entity uuid or name
-     * @param callback Result callback
-     */
-    public static <T extends BaasioBaseEntity> void disconnectInBackground(final String sourceType,
-            final String sourceUuid, final String relationship, final String targetType,
-            final String targetUuid, final BaasioCallback<BaasioBaseEntity> callback) {
-        (new BaasioAsyncTask<BaasioBaseEntity>(callback) {
-            @Override
-            public BaasioBaseEntity doTask() throws BaasioException {
-                return disconnect(sourceType, sourceUuid, relationship, targetType, targetUuid);
-            }
-        }).execute();
-    }
 }
