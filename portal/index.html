@@ -14,8 +14,6 @@ $(document).ready(function() {
 	$('.layout_fixed').css({
 		'position': 'relative',
 		'float': 'left',
-		'border-left': '1px solid rgb(208, 208, 208)',
-		'padding': '15px 30px 30px',
 		'width': '688px',
 		'z-index': '1'
 	})
@@ -28,9 +26,41 @@ $(document).ready(function() {
     'vertical-align': 'baseline'
   })
   
+  $('.layout_fixed p').css({
+	'list-style-type': 'square',
+	'padding': '0px 0px 25px',
+	'margin': '0',
+	'font-size': '14px',
+	'line-height': '24px'
+  })
+  
+  $('.layout_fixed p + ul').css({
+	'margin-top': '-15px'
+  })
+  
+  $('.layout_fixed p + p').css({
+	'margin-top': '-15px'
+  })
+  
+  $('.layout_fixed ul').css({
+	'list-style-type': 'square',
+	'margin': '0px 0px 25px',
+	'font-size': '13px',
+	'padding': '0 0 0 20px'
+  })
+  
   $('.layout_fixed li').css({
 	'font-weight': 'bold',
-	'font-size': '16px'
+	'font-size': '16px',
+	'line-height': '26px'
+  })
+  
+  $('.layout_fixed h2').css({
+	'color': '#333',
+	'font-size': '20px',
+	'font-weight': 'bold',
+	'padding': '5px 0 12px', 
+	'margin-left': '-1px'
   })
   
   $('.layout_fixed').css({
