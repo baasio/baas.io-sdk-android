@@ -5,31 +5,71 @@
 <title>baas.io 대한민국 1등 모바일 백엔드 서비스</title>
 <meta name="description" content="baas.io는 모바일 앱 개발자들을 위한 백엔드 플랫폼입니다. iOS, Android, JS 등 멀티 플랫폼을 지원합니다. baas.io 하나로 쉽고 편리하게 관리하세요." />
 <link href="https://baas.io/docs/js/prettify.css" type="text/css" rel="stylesheet" /> <script type="text/javascript" src="https://baas.io/docs/js/prettify.js"></script>
+<script>
+$(document).ready(function() {
+	$('.layout_fixed').css({
+		'position': 'relative',
+		'float': 'left',
+		'z-index': '1',
+		'font-family': '나눔고딕,NanumGothic,Nanum,sans-serif'
+	})
+  $('.layout_fixed div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, font, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td')
+  .css({
+	'margin': '0px',
+    'border': '0px none',
+    'outline': '0px none',
+    'font-size': '100%',
+    'vertical-align': 'baseline'
+  })
+  
+  $('.layout_fixed p').css({
+	'list-style-type': 'square',
+	'padding': '0px 0px 25px',
+	'margin': '0',
+	'font-size': '14px',
+	'line-height': '24px'
+  })
+  
+  $('.layout_fixed').find('.lst p').css({
+	'margin-bottom': '-15px'
+  })
+  
+  $('.layout_fixed ul').css({
+	'list-style-type': 'square',
+	'margin': '0px 0px 25px',
+	'font-size': '13px',
+	'padding': '0 0 0 20px'
+  })
+  
+  $('.layout_fixed li').css({
+	'color': '#333',
+	'font-weight': 'bold',
+	'font-size': '16px',
+	'line-height': '26px'
+  })
+  
+  $('.layout_fixed h2').css({
+	'color': '#333',
+	'font-size': '20px',
+	'font-weight': 'bold',
+	'padding': '5px 0 12px', 
+	'margin-left': '-1px'
+  })
+  
+  $('.layout_fixed a').css({
+	'color': '#9504e0',
+	'text-decoration': 'none'
+  })
+  
+  $('.layout_fixed').css({
+	'line-height': '30px',
+    'color': 'rgb(95, 95, 95)'
+	})
+})
+</script>
+
 <style>
-element {
-}
-.documentation .contentbox {
-    position: relative;
-    float: left;
-    border-left: 1px solid rgb(208, 208, 208);
-    padding: 15px 30px 30px;
-    width: 688px;
-    z-index: 1;
-}
-html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, font, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td {
-    margin: 0px;
-    border: 0px none;
-    outline: 0px none;
-    font-size: 100%;
-    vertical-align: baseline;
-}
-body,h3,label,span,p,em,pre,blockquote,textarea,input,button,a,input[type=text],input[type=password],select {
-	font-family:나눔고딕,'NanumGothic','Nanum',sans-serif;
-}
-body {
-    line-height: 30px;
-    color: rgb(95, 95, 95);
-}
+@font-face {font-family:'Nanum';src:url('font/nanumgothic.eot');src:local('NanumGothic'),url('font/nanumgothic.woff') format('woff'),url('font/nanumgothic.ttf') format('truetype');font-weight:normal;font-style:normal;}
 </style>
 </head>
 <body class="layout_fixed" onload="prettyPrint()">
