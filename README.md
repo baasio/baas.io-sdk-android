@@ -5,11 +5,11 @@ baas.io에서는 앱 개발자 분들이 많이 사용하시는 사용자 관리
 baas.io에서 제공되는 Android SDK는 REST API에 익숙하지 않은 Android 개발자 분들도 간단한 설정만으로 baas.io의 모든 기능을 사용할 수 있도록 구성되어 있습니다
 
 
-***OS 지원***
+### OS 지원
 
 - Android OS 2.2 이상 4.2.x 이하
 
-***라이브러리 의존성***
+### 라이브러리 의존성
 
 - <a href="https://github.com/baasio/baas.io-sdk-android/wiki/Getting-Started" target="_blank">Google Cloud Messaging Service</a><br>
 	- gcm.jar
@@ -22,7 +22,7 @@ baas.io에서 제공되는 Android SDK는 REST API에 익숙하지 않은 Androi
 - <a href="http://www.slf4j.org/" target="_blank">slf4j</a><br>
 	- slf4j-android-1.6.1-RC1.jar
 
-***다운로드***
+### 다운로드
 
 - [baas.io Android SDK 다운로드](https://github.com/baasio/baas.io-sdk-android/wiki/Version-History)
 
