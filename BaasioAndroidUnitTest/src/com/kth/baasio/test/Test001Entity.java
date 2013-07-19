@@ -20,6 +20,7 @@ import com.kth.common.utils.LogUtils;
 import android.os.AsyncTask;
 import android.test.InstrumentationTestCase;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
@@ -596,10 +597,10 @@ public class Test001Entity extends InstrumentationTestCase {
         entity2.setUuid(mEntity2.getUuid());
 
         entity1.connectInBackground(UnitTestConfig.RELATIONSHIP_NAME, entity2,
-                new BaasioCallback<BaasioEntity>() {
+                new BaasioCallback<BaasioBaseEntity>() {
 
                     @Override
-                    public void onResponse(BaasioEntity response) {
+                    public void onResponse(BaasioBaseEntity response) {
                         if (!response.getType().equals(UnitTestConfig.ENTITY2_TYPE)) {
                             fail("Type miss match");
                         }
@@ -685,10 +686,10 @@ public class Test001Entity extends InstrumentationTestCase {
         entity2.setUuid(mEntity2.getUuid());
 
         entity1.disconnectInBackground(UnitTestConfig.RELATIONSHIP_NAME, entity2,
-                new BaasioCallback<BaasioEntity>() {
+                new BaasioCallback<BaasioBaseEntity>() {
 
                     @Override
-                    public void onResponse(BaasioEntity response) {
+                    public void onResponse(BaasioBaseEntity response) {
                         if (!response.getType().equals(UnitTestConfig.ENTITY2_TYPE)) {
                             fail("Type miss match");
                         }
@@ -752,7 +753,173 @@ public class Test001Entity extends InstrumentationTestCase {
         signal.await();
     }
 
-    public void test317Entity1Delete() throws InterruptedException {
+    public void test317ConnectEntitiesWithClassType() throws InterruptedException {
+        final CountDownLatch signal = new CountDownLatch(1);
+
+        BaasioEntity entity1 = new BaasioEntity(UnitTestConfig.ENTITY1_TYPE);
+        entity1.setName(mEntity1.getName());
+
+        BaasioEntity entity2 = new BaasioEntity(UnitTestConfig.ENTITY2_TYPE);
+        entity2.setUuid(mEntity2.getUuid());
+
+        entity1.connectInBackground(UnitTestConfig.RELATIONSHIP_NAME, entity2, BaasioEntity.class,
+                new BaasioCallback<BaasioEntity>() {
+
+                    @Override
+                    public void onResponse(BaasioEntity response) {
+                        if (!response.getType().equals(UnitTestConfig.ENTITY2_TYPE)) {
+                            fail("Type miss match");
+                        }
+
+                        if (!response.getUuid().equals(mEntity2.getUuid())) {
+                            fail("Uuid miss match");
+                        }
+
+                        String test = response.getProperty(UnitTestConfig.ENTITY_PROPERTY_NAME)
+                                .getTextValue();
+                        if (!UnitTestConfig.ENTITY2_PROPERTY_VALUE.equals(test)) {
+                            fail("Property miss match");
+                        }
+
+                        signal.countDown();
+                    }
+
+                    @Override
+                    public void onException(BaasioException e) {
+                        LogUtils.LOGE(TAG, e.toString());
+                        fail(e.toString());
+
+                        signal.countDown();
+                    }
+
+                });
+
+        signal.await();
+    }
+
+    public void test318CheckConnected() throws InterruptedException {
+        final CountDownLatch signal = new CountDownLatch(1);
+
+        BaasioEntity entity1 = new BaasioEntity(UnitTestConfig.ENTITY1_TYPE);
+        entity1.setName(mEntity1.getName());
+
+        BaasioQuery query = new BaasioQuery();
+        query.setRelation(entity1, UnitTestConfig.RELATIONSHIP_NAME);
+        query.setWheres(BaasioUser.PROPERTY_NAME + "='" + mEntity2.getName() + "'");
+
+        query.queryInBackground(new BaasioQueryCallback() {
+
+            @Override
+            public void onResponse(List<BaasioBaseEntity> entities, List<Object> list,
+                    BaasioQuery query, long timestamp) {
+                BaasioEntity entity = entities.get(0).toType(BaasioEntity.class);
+                if (!entity.getType().equals(UnitTestConfig.ENTITY2_TYPE)) {
+                    fail("Type miss match");
+                }
+
+                if (!entity.getUuid().equals(mEntity2.getUuid())) {
+                    fail("Uuid miss match");
+                }
+
+                String test = entity.getProperty(UnitTestConfig.ENTITY_PROPERTY_NAME)
+                        .getTextValue();
+                if (!UnitTestConfig.ENTITY2_PROPERTY_VALUE.equals(test)) {
+                    fail("Property miss match");
+                }
+
+                signal.countDown();
+            }
+
+            @Override
+            public void onException(BaasioException e) {
+                LogUtils.LOGE(TAG, e.toString());
+                fail(e.toString());
+
+                signal.countDown();
+            }
+        });
+
+        signal.await();
+    }
+
+    public void test319DisconnectEntitiesByClassType() throws InterruptedException {
+        final CountDownLatch signal = new CountDownLatch(1);
+
+        BaasioEntity entity1 = new BaasioEntity(UnitTestConfig.ENTITY1_TYPE);
+        entity1.setName(mEntity1.getName());
+
+        BaasioEntity entity2 = new BaasioEntity(UnitTestConfig.ENTITY2_TYPE);
+        entity2.setUuid(mEntity2.getUuid());
+
+        entity1.disconnectInBackground(UnitTestConfig.RELATIONSHIP_NAME, entity2,
+                BaasioEntity.class, new BaasioCallback<BaasioEntity>() {
+
+                    @Override
+                    public void onResponse(BaasioEntity response) {
+                        if (!response.getType().equals(UnitTestConfig.ENTITY2_TYPE)) {
+                            fail("Type miss match");
+                        }
+
+                        if (!response.getUuid().equals(mEntity2.getUuid())) {
+                            fail("Uuid miss match");
+                        }
+
+                        String test = response.getProperty(UnitTestConfig.ENTITY_PROPERTY_NAME)
+                                .getTextValue();
+                        if (!UnitTestConfig.ENTITY2_PROPERTY_VALUE.equals(test)) {
+                            fail("Property miss match");
+                        }
+
+                        signal.countDown();
+                    }
+
+                    @Override
+                    public void onException(BaasioException e) {
+                        LogUtils.LOGE(TAG, e.toString());
+                        fail(e.toString());
+
+                        signal.countDown();
+                    }
+                });
+
+        signal.await();
+    }
+
+    public void test320CheckDisconnected() throws InterruptedException {
+        final CountDownLatch signal = new CountDownLatch(1);
+
+        BaasioEntity entity1 = new BaasioEntity(UnitTestConfig.ENTITY1_TYPE);
+        entity1.setName(mEntity1.getName());
+
+        BaasioQuery query = new BaasioQuery();
+        query.setRelation(entity1, UnitTestConfig.RELATIONSHIP_NAME);
+        query.setWheres(BaasioUser.PROPERTY_NAME + "='" + mEntity2.getName() + "'");
+
+        query.queryInBackground(new BaasioQueryCallback() {
+
+            @Override
+            public void onResponse(List<BaasioBaseEntity> entities, List<Object> list,
+                    BaasioQuery query, long timestamp) {
+                if (entities != null && entities.size() > 0) {
+                    fail("Not disconnected");
+                }
+
+                signal.countDown();
+            }
+
+            @Override
+            public void onException(BaasioException e) {
+                LogUtils.LOGE(TAG, e.toString());
+                fail(e.toString());
+
+                signal.countDown();
+            }
+        });
+
+        signal.await();
+    }
+
+    public void test321Entity1Delete() throws InterruptedException {
         final CountDownLatch signal = new CountDownLatch(1);
 
         BaasioEntity entity = new BaasioEntity(UnitTestConfig.ENTITY1_TYPE);
@@ -789,7 +956,7 @@ public class Test001Entity extends InstrumentationTestCase {
         signal.await();
     }
 
-    public void test318Entity2Delete() throws InterruptedException {
+    public void test322Entity2Delete() throws InterruptedException {
         final CountDownLatch signal = new CountDownLatch(1);
 
         BaasioEntity entity = new BaasioEntity(UnitTestConfig.ENTITY2_TYPE);
@@ -822,6 +989,71 @@ public class Test001Entity extends InstrumentationTestCase {
                 signal.countDown();
             }
         });
+        signal.await();
+    }
+
+    public void test323SaveEntities() throws InterruptedException {
+        final CountDownLatch signal = new CountDownLatch(1);
+
+        List<BaasioEntity> entities = new ArrayList<BaasioEntity>();
+
+        for (int i = 0; i < 10; i++) {
+            BaasioEntity entity = new BaasioEntity(UnitTestConfig.BULK_ENTITY_TYPE);
+            entity.setName(UnitTestConfig.BULK_ENTITY_NAME_PREFIX + i);
+            entity.setProperty(UnitTestConfig.ENTITY_PROPERTY_NAME + i, i);
+
+            entities.add(entity);
+        }
+
+        BaasioEntity.saveInBackground(UnitTestConfig.BULK_ENTITY_TYPE, entities,
+                new BaasioCallback<List<BaasioEntity>>() {
+
+                    @Override
+                    public void onResponse(List<BaasioEntity> response) {
+                        LogUtils.LOGV(TAG, response.toString());
+
+                        if (response.size() != 10) {
+                            fail("The number of entity is not 10");
+                        }
+                        signal.countDown();
+                    }
+
+                    @Override
+                    public void onException(BaasioException e) {
+                        LogUtils.LOGE(TAG, e.toString());
+                        fail(e.toString());
+
+                        signal.countDown();
+                    }
+                });
+        signal.await();
+    }
+
+    public void test324DeleteEntities() throws InterruptedException {
+        final CountDownLatch signal = new CountDownLatch(10);
+
+        for (int i = 0; i < 10; i++) {
+            BaasioEntity entity = new BaasioEntity(UnitTestConfig.BULK_ENTITY_TYPE);
+            entity.setName(UnitTestConfig.BULK_ENTITY_NAME_PREFIX + i);
+
+            entity.deleteInBackground(new BaasioCallback<BaasioEntity>() {
+
+                @Override
+                public void onResponse(BaasioEntity response) {
+                    LogUtils.LOGV(TAG, response.toString());
+
+                    signal.countDown();
+                }
+
+                @Override
+                public void onException(BaasioException e) {
+                    LogUtils.LOGE(TAG, e.toString());
+                    fail(e.toString());
+
+                    signal.countDown();
+                }
+            });
+        }
         signal.await();
     }
 

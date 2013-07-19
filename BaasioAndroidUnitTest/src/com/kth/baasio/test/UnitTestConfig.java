@@ -9,11 +9,15 @@ public class UnitTestConfig {
     // Auth
     public static final String USER1_USERNAME = "android_unit_test1";
 
-    public static final String USER1_EMAIL = USER1_USERNAME + "@test.com";
+    public static final String USER1_EMAIL = "craptacle@gmail.com";
 
     public static final String USER2_USERNAME = "android_unit_test2";
 
     public static final String USER2_EMAIL = USER2_USERNAME + "@test.com";
+
+    public static final String USER1_UPDATED_PROPERTY_NAME = "updated";
+
+    public static final String USER1_UPDATED_PROPERTY_VALUE = "value";
 
     public static final String COMMON_PASSWORD = "test1234";
 
@@ -35,6 +39,10 @@ public class UnitTestConfig {
     public static final String ENTITY2_PROPERTY_CHANGED_VALUE = "2-2";
 
     public static final String RELATIONSHIP_NAME = "entity_relation";
+
+    public static final String BULK_ENTITY_TYPE = "bulk_test";
+
+    public static final String BULK_ENTITY_NAME_PREFIX = "test";
 
     // Group
     public static final String GROUP_PATH = "AndroidUnitTestGroup";
@@ -85,6 +93,12 @@ public class UnitTestConfig {
     public static final String PUSH_TARGET_TAG_SHOULD_NOT_RECEIVE = "Tag 발송: 받지말아야함";
 
     public static final String PUSH_RESERVED_MSG_POSTFIX = " + 예약발송";
+
+    public static final String PUSH_TARGET_ALL_MSG_WITH_CUSTOM_FILED = "전체발송_커스텀필드";
+
+    public static final String PUSH_CUSTOM_FILED_KEY = "custom";
+
+    public static final String PUSH_CUSTOM_FILED_VALUE = "커스텀 필드의 값";
 
     // Help Center
     public static final boolean HELPCENTER_RECOMMENDED_HELP = true;

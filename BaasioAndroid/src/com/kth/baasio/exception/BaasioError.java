@@ -14,6 +14,8 @@ public final class BaasioError {
 
     public static final String ERROR_MISSING_GROUP_UUID_OR_PATH = "Missing group uuid or path";
 
+    public static final String ERROR_EMPTY_LIST = "Empty list";
+
     public static final String ERROR_MISSING_UUID = "Missing uuid";
 
     public static final String ERROR_MISSING_UUID_OR_NAME = "Missing uuid or name";
@@ -48,6 +50,8 @@ public final class BaasioError {
 
     public static final String ERROR_NEED_SIGNIN = "Need signin";
 
+    public static final String ERROR_MISSING_EMAIL = "Missing email address";
+
     public static final String ERROR_NOT_SUPPORT_CLONING = "Clone is not allowed.";
 
     public static final String ERROR_ENTITY_TYPE_MISMATCHED = "Entity type is mismatched";
@@ -60,7 +64,7 @@ public final class BaasioError {
 
     public static final String ERROR_GCM_MISSING_REGID = "Missing device token(regId)";
 
-    public static final String ERROR_GCM_TAG_LENGTH_EXCEED = "Max tag length is 12";
+    public static final String ERROR_GCM_TAG_LENGTH_EXCEED = "Max tag length is 36";
 
     public static final String ERROR_GCM_TAG_PATTERN_MISS_MATCHED = "Tags only allowed a-z, A-Z, 0-9, hyphen, underscore characters";// "^[a-zA-Z0-9-_]*$"
 

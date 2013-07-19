@@ -158,14 +158,17 @@ public class BaasioQuery implements Cloneable {
             throw new IllegalArgumentException(BaasioError.ERROR_MISSING_TYPE);
         }
 
+        if (ObjectUtils.isEmpty(relationship)) {
+            throw new IllegalArgumentException(BaasioError.ERROR_MISSING_RELATIONSHIP);
+        }
+
         if (entity instanceof BaasioUser) {
             BaasioUser targetUserEntity = (BaasioUser)entity;
-            if (ObjectUtils.isEmpty(targetUserEntity.getUuid())
-                    && ObjectUtils.isEmpty(targetUserEntity.getUsername())) {
+            if (ObjectUtils.isEmpty(targetUserEntity.getUniqueKey())) {
                 throw new IllegalArgumentException(BaasioError.ERROR_MISSING_USER_UUID_OR_USERNAME);
             }
         } else {
-            if (ObjectUtils.isEmpty(entity.getUuid()) && ObjectUtils.isEmpty(entity.getName())) {
+            if (ObjectUtils.isEmpty(entity.getUniqueKey())) {
                 throw new IllegalArgumentException(BaasioError.ERROR_MISSING_UUID_OR_NAME);
             }
         }
@@ -209,7 +212,7 @@ public class BaasioQuery implements Cloneable {
             throw new IllegalArgumentException(BaasioError.ERROR_MISSING_TARGET_GROUP_ENTITY);
         }
 
-        if (ObjectUtils.isEmpty(group.getUuid()) && ObjectUtils.isEmpty(group.getPath())) {
+        if (ObjectUtils.isEmpty(group.getUniqueKey())) {
             throw new IllegalArgumentException(BaasioError.ERROR_MISSING_GROUP_UUID_OR_PATH);
         }
 
@@ -444,50 +447,23 @@ public class BaasioQuery implements Cloneable {
         BaasioResponse response = null;
         if (ObjectUtils.isEmpty(getRawString())) {
             if (!ObjectUtils.isEmpty(relatedWithThisEntity)) {
-
-                String source;
-                if (relatedWithThisEntity instanceof BaasioUser) {
-                    BaasioUser targetUserEntity = (BaasioUser)relatedWithThisEntity;
-                    if (ObjectUtils.isEmpty(targetUserEntity.getUuid())
-                            && ObjectUtils.isEmpty(targetUserEntity.getUsername())) {
-                        throw new IllegalArgumentException(
-                                BaasioError.ERROR_MISSING_USER_UUID_OR_USERNAME);
-                    }
-
-                    if (!ObjectUtils.isEmpty(targetUserEntity.getUuid())) {
-                        source = targetUserEntity.getUuid().toString();
-                    } else {
-                        source = targetUserEntity.getUsername();
-                    }
-                } else {
-                    if (ObjectUtils.isEmpty(relatedWithThisEntity.getUuid())
-                            && ObjectUtils.isEmpty(relatedWithThisEntity.getName())) {
-                        throw new IllegalArgumentException(BaasioError.ERROR_MISSING_UUID_OR_NAME);
-                    }
-
-                    if (!ObjectUtils.isEmpty(relatedWithThisEntity.getUuid())) {
-                        source = relatedWithThisEntity.getUuid().toString();
-                    } else {
-                        source = relatedWithThisEntity.getName();
-                    }
+                if (ObjectUtils.isEmpty(relatedWithThisEntity.getType())) {
+                    throw new IllegalArgumentException(BaasioError.ERROR_MISSING_TYPE);
                 }
 
                 response = Baas.io().apiRequest(HttpMethod.GET, null, null,
-                        relatedWithThisEntity.getType(), source,
+                        relatedWithThisEntity.getType(), relatedWithThisEntity.getUniqueKey(),
                         relationship + getQueryBaseString());
 
             } else if (!ObjectUtils.isEmpty(inThisGroup)) {
+                response = Baas.io().apiRequest(HttpMethod.GET, null, null, "groups",
+                        inThisGroup.getUniqueKey(), "users" + getQueryBaseString());
 
-                String target;
-                if (!ObjectUtils.isEmpty(inThisGroup.getUuid())) {
-                    target = inThisGroup.getUuid().toString();
-                } else {
-                    target = inThisGroup.getPath();
+            } else {
+                if (ObjectUtils.isEmpty(getType())) {
+                    throw new IllegalArgumentException(BaasioError.ERROR_MISSING_TYPE);
                 }
 
-                response = Baas.io().apiRequest(HttpMethod.GET, null, null, "groups", target,
-                        "users" + getQueryBaseString());
-            } else {
                 response = Baas.io().apiRequest(HttpMethod.GET, null, null,
                         getType() + getQueryBaseString());
             }
@@ -534,20 +510,32 @@ public class BaasioQuery implements Cloneable {
         BaasioResponse response = null;
         if (ObjectUtils.isEmpty(getRawString())) {
             if (!ObjectUtils.isEmpty(relatedWithThisEntity)) {
+                if (ObjectUtils.isEmpty(relatedWithThisEntity.getType())) {
+                    throw new IllegalArgumentException(BaasioError.ERROR_MISSING_TYPE);
+                }
+
                 response = Baas.io().apiRequest(HttpMethod.GET, null, null,
-                        relatedWithThisEntity.getType(),
-                        relatedWithThisEntity.getUuid().toString(),
+                        relatedWithThisEntity.getType(), relatedWithThisEntity.getUniqueKey(),
                         relationship + getQueryString(false));
 
             } else if (!ObjectUtils.isEmpty(inThisGroup)) {
                 response = Baas.io().apiRequest(HttpMethod.GET, null, null, "groups",
                         inThisGroup.getPath(), "users" + getQueryString(false));
             } else {
+                if (ObjectUtils.isEmpty(getType())) {
+                    throw new IllegalArgumentException(BaasioError.ERROR_MISSING_TYPE);
+                }
+
                 response = Baas.io().apiRequest(HttpMethod.GET, null, null,
                         getType() + getQueryString(false));
             }
         } else {
-            response = Baas.io().apiRequest(HttpMethod.GET, null, null, getRawString());
+            if (hasPrevEntities()) {
+                response = Baas.io().apiRequest(HttpMethod.GET, null, null,
+                        getRawString() + "&cursor=" + getPrevCursor());
+            } else {
+                throw new BaasioException(BaasioError.ERROR_QUERY_NO_MORE_PREV);
+            }
         }
 
         if (!ObjectUtils.isEmpty(response)) {
@@ -590,20 +578,32 @@ public class BaasioQuery implements Cloneable {
         BaasioResponse response = null;
         if (ObjectUtils.isEmpty(getRawString())) {
             if (!ObjectUtils.isEmpty(relatedWithThisEntity)) {
+                if (ObjectUtils.isEmpty(relatedWithThisEntity.getType())) {
+                    throw new IllegalArgumentException(BaasioError.ERROR_MISSING_TYPE);
+                }
+
                 response = Baas.io().apiRequest(HttpMethod.GET, null, null,
-                        relatedWithThisEntity.getType(),
-                        relatedWithThisEntity.getUuid().toString(),
+                        relatedWithThisEntity.getType(), relatedWithThisEntity.getUniqueKey(),
                         relationship + getQueryString(true));
 
             } else if (!ObjectUtils.isEmpty(inThisGroup)) {
                 response = Baas.io().apiRequest(HttpMethod.GET, null, null, "groups",
-                        inThisGroup.getPath(), "users" + getQueryString(true));
+                        inThisGroup.getUniqueKey(), "users" + getQueryString(true));
             } else {
+                if (ObjectUtils.isEmpty(getType())) {
+                    throw new IllegalArgumentException(BaasioError.ERROR_MISSING_TYPE);
+                }
+
                 response = Baas.io().apiRequest(HttpMethod.GET, null, null,
                         getType() + getQueryString(true));
             }
         } else {
-            response = Baas.io().apiRequest(HttpMethod.GET, null, null, getRawString());
+            if (hasNextEntities()) {
+                response = Baas.io().apiRequest(HttpMethod.GET, null, null,
+                        getRawString() + "&cursor=" + getNextCursor());
+            } else {
+                throw new BaasioException(BaasioError.ERROR_QUERY_NO_MORE_NEXT);
+            }
         }
 
         if (!ObjectUtils.isEmpty(response)) {

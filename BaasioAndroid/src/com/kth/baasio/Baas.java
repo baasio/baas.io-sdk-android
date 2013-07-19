@@ -525,10 +525,12 @@ public class Baas {
         HttpEntity<?> requestEntity = null;
 
         if (method.equals(HttpMethod.POST) || method.equals(HttpMethod.PUT)) {
+            LogUtils.LOGV(TAG, "Client.httpRequest(): header: " + requestHeaders.toString());
             if (ObjectUtils.isEmpty(data)) {
                 requestEntity = new HttpEntity<Object>(requestHeaders);
             } else {
                 requestEntity = new HttpEntity<Object>(data, requestHeaders);
+                LogUtils.LOGV(TAG, "Client.httpRequest(): request: " + data.toString());
             }
 
         } else {

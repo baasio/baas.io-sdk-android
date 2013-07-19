@@ -17,9 +17,9 @@ public class BaasioLocation {
 
     public final static String PROPERTY_LONGITUDE = "longitude";
 
-    private Float latitude;
+    private Double latitude;
 
-    private Float longitude;
+    private Double longitude;
 
     public BaasioLocation() {
 
@@ -27,8 +27,8 @@ public class BaasioLocation {
 
     @JsonCreator
     public static BaasioLocation createObject(String jsonString) {
-        BaasioLocation facebook = JsonUtils.fromJsonString(jsonString, BaasioLocation.class);
-        return facebook;
+        BaasioLocation loaction = JsonUtils.fromJsonString(jsonString, BaasioLocation.class);
+        return loaction;
     }
 
     @JsonIgnore
@@ -40,20 +40,20 @@ public class BaasioLocation {
     }
 
     @JsonSerialize(include = NON_NULL)
-    public Float getLatitude() {
+    public Double getLatitude() {
         return latitude;
     }
 
-    public void setLatitude(Float latitude) {
+    public void setLatitude(Double latitude) {
         this.latitude = latitude;
     }
 
     @JsonSerialize(include = NON_NULL)
-    public Float getLongitude() {
+    public Double getLongitude() {
         return longitude;
     }
 
-    public void setLongitude(Float longitude) {
+    public void setLongitude(Double longitude) {
         this.longitude = longitude;
     }
 

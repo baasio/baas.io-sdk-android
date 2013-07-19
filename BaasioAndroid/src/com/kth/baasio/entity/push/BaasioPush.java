@@ -175,8 +175,6 @@ public class BaasioPush {
 
                     throw new BaasioException(BaasioError.ERROR_UNKNOWN_NORESULT_ENTITY);
                 }
-
-                throw new BaasioException(BaasioError.ERROR_UNKNOWN_NO_RESPONSE_DATA);
             } catch (BaasioException e) {
                 LogUtils.LOGV(TAG, e.toString());
 
@@ -269,7 +267,7 @@ public class BaasioPush {
      * callbacks are called in the UI thread.
      * 
      * @param context Context
-     * @param tags tags
+     * @param tags Tags. The max length of each tag is 36.
      * @param callback GCM registration result callback
      * @return registration task
      */
@@ -284,7 +282,7 @@ public class BaasioPush {
 
         List<String> tagList = getTagList(tags);
         for (String tag : tagList) {
-            if (tag.length() > 12) {
+            if (tag.length() > 36) {
                 throw new IllegalArgumentException(BaasioError.ERROR_GCM_TAG_LENGTH_EXCEED);
             }
 
