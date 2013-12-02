@@ -82,6 +82,8 @@ public class UnitTestConfig {
 
     public static final String PUSH_TARGET_USER_MSG = "개별발송-USER";
 
+    public static final String PUSH_TARGET_USER_MSG2 = "개별발송2-USER";
+
     public static final String PUSH_TARGET_DEVICE_MSG = "개별발송-DEVICE";
 
     public static final String PUSH_TARGET_IOS_MSG = "iOS 전체발송";
