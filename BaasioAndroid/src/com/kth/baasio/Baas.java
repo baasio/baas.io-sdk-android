@@ -32,6 +32,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.http.converter.ByteArrayHttpMessageConverter;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.ResourceHttpMessageConverter;
@@ -124,6 +125,28 @@ public class Baas {
      */
     public static Baas io() {
         return InstanceHolder.mSingleton;
+    }
+
+    /**
+     * Set read timeout and connect timeout
+     * 
+     * @param readTimeout milliseconds
+     * @param connectTimeout milliseconds
+     */
+    public static void setTimeout(int readTimeout, int connectTimeout) {
+        if (restTemplate.getRequestFactory() instanceof SimpleClientHttpRequestFactory) {
+            LogUtils.LOGD(TAG, "HttpUrlConnection is used");
+            ((SimpleClientHttpRequestFactory)restTemplate.getRequestFactory())
+                    .setConnectTimeout(connectTimeout);
+            ((SimpleClientHttpRequestFactory)restTemplate.getRequestFactory())
+                    .setReadTimeout(readTimeout);
+        } else if (restTemplate.getRequestFactory() instanceof HttpComponentsClientHttpRequestFactory) {
+            LogUtils.LOGD(TAG, "HttpClient is used");
+            ((HttpComponentsClientHttpRequestFactory)restTemplate.getRequestFactory())
+                    .setReadTimeout(readTimeout);
+            ((HttpComponentsClientHttpRequestFactory)restTemplate.getRequestFactory())
+                    .setConnectTimeout(connectTimeout);
+        }
     }
 
     /**
