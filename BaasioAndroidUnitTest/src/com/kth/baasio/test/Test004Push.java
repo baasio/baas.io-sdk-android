@@ -225,10 +225,6 @@ public class Test004Push extends InstrumentationTestCase {
             public void onResponse(BaasioMessage response) {
                 LogUtils.LOGV(TAG, response.toString());
 
-                if (!BaasioMessage.TARGET_TYPE_USER.equalsIgnoreCase(response.getTarget())) {
-                    fail("Not target user");
-                }
-
                 signal.countDown();
             }
 

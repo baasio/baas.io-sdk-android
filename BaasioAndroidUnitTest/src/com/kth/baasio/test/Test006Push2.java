@@ -5,6 +5,7 @@ import com.kth.baasio.Baas;
 import com.kth.baasio.callback.BaasioCallback;
 import com.kth.baasio.callback.BaasioDeviceCallback;
 import com.kth.baasio.callback.BaasioSignInCallback;
+import com.kth.baasio.callback.BaasioSignUpCallback;
 import com.kth.baasio.entity.push.BaasioDevice;
 import com.kth.baasio.entity.push.BaasioMessage;
 import com.kth.baasio.entity.push.BaasioPayload;
@@ -13,6 +14,7 @@ import com.kth.baasio.entity.user.BaasioUser;
 import com.kth.baasio.exception.BaasioError;
 import com.kth.baasio.exception.BaasioException;
 import com.kth.baasio.preferences.BaasioPreferences;
+import com.kth.baasio.utils.ObjectUtils;
 import com.kth.common.utils.LogUtils;
 
 import android.os.AsyncTask;
@@ -64,18 +66,14 @@ public class Test006Push2 extends InstrumentationTestCase {
                         LogUtils.LOGV(TAG, response.toString());
                         signal.countDown();
                     }
-                }, BaasioConfig.GCM_SENDER_ID);
+                }, BaasioConfig.GCM_SENDER_ID2);
 
         if (mGCMRegisterTask != null) {
             signal.await();
         }
     }
 
-    public void test001Init_User1SignOut() throws InterruptedException {
-        BaasioUser.signOut(getInstrumentation().getContext());
-    }
-
-    public void test002Init_User1SignIn() throws InterruptedException {
+    public void test001Init_User1SignIn() throws InterruptedException {
         final CountDownLatch signal = new CountDownLatch(1);
 
         BaasioUser.signOut(getInstrumentation().getContext());
@@ -95,6 +93,83 @@ public class Test006Push2 extends InstrumentationTestCase {
                     public void onResponse(BaasioUser response) {
                         LogUtils.LOGV(TAG, response.toString());
 
+                        signal.countDown();
+                    }
+                });
+
+        signal.await();
+    }
+
+    public void test002Init_User1Unsubscribe() throws InterruptedException {
+        final CountDownLatch signal = new CountDownLatch(1);
+
+        BaasioUser user = Baas.io().getSignedInUser();
+        if (!ObjectUtils.isEmpty(user)) {
+            user.unsubscribeInBackground(getInstrumentation().getContext(),
+                    new BaasioCallback<BaasioUser>() {
+
+                        @Override
+                        public void onResponse(BaasioUser response) {
+                            LogUtils.LOGV(TAG, response.toString());
+
+                            signal.countDown();
+                        }
+
+                        @Override
+                        public void onException(BaasioException e) {
+                            LogUtils.LOGV(TAG, e.toString());
+
+                            signal.countDown();
+                        }
+                    });
+
+            signal.await();
+        }
+    }
+
+    public void test003Init_User1SignUp() throws InterruptedException {
+        final CountDownLatch signal = new CountDownLatch(1);
+
+        BaasioUser.signUpInBackground(UnitTestConfig.USER1_USERNAME, UnitTestConfig.USER1_USERNAME,
+                UnitTestConfig.USER1_EMAIL, UnitTestConfig.COMMON_PASSWORD,
+                new BaasioSignUpCallback() {
+
+                    @Override
+                    public void onException(BaasioException e) {
+                        LogUtils.LOGE(TAG, e.toString());
+                        fail(e.toString());
+
+                        signal.countDown();
+                    }
+
+                    @Override
+                    public void onResponse(BaasioUser response) {
+                        LogUtils.LOGV(TAG, response.toString());
+                        signal.countDown();
+                    }
+                });
+
+        signal.await();
+    }
+
+    public void test004Init_User1SignIn() throws InterruptedException {
+        final CountDownLatch signal = new CountDownLatch(1);
+
+        BaasioUser.signInInBackground(getInstrumentation().getContext(),
+                UnitTestConfig.USER1_USERNAME, UnitTestConfig.COMMON_PASSWORD,
+                new BaasioSignInCallback() {
+
+                    @Override
+                    public void onException(BaasioException e) {
+                        LogUtils.LOGE(TAG, e.toString());
+                        fail(e.toString());
+
+                        signal.countDown();
+                    }
+
+                    @Override
+                    public void onResponse(BaasioUser response) {
+                        LogUtils.LOGV(TAG, response.toString());
                         signal.countDown();
                     }
                 });
@@ -149,10 +224,6 @@ public class Test006Push2 extends InstrumentationTestCase {
             @Override
             public void onResponse(BaasioMessage response) {
                 LogUtils.LOGV(TAG, response.toString());
-
-                if (!BaasioMessage.TARGET_TYPE_USER.equalsIgnoreCase(response.getTarget())) {
-                    fail("Not target user");
-                }
 
                 signal.countDown();
             }
@@ -482,6 +553,63 @@ public class Test006Push2 extends InstrumentationTestCase {
         });
 
         signal.await();
+    }
+
+    public void test996Uninit_UserSignOut() {
+        BaasioUser.signOut(getInstrumentation().getContext());
+    }
+
+    public void test997Uninit_User1SignIn() throws InterruptedException {
+        final CountDownLatch signal = new CountDownLatch(1);
+
+        BaasioUser.signInInBackground(getInstrumentation().getContext(),
+                UnitTestConfig.USER1_USERNAME, UnitTestConfig.COMMON_PASSWORD,
+                new BaasioSignInCallback() {
+
+                    @Override
+                    public void onException(BaasioException e) {
+                        LogUtils.LOGE(TAG, e.toString());
+                        fail(e.toString());
+
+                        signal.countDown();
+                    }
+
+                    @Override
+                    public void onResponse(BaasioUser response) {
+                        LogUtils.LOGV(TAG, response.toString());
+
+                        signal.countDown();
+                    }
+                });
+
+        signal.await();
+    }
+
+    public void test998Uninit_User1Unsubscribe() throws InterruptedException {
+        final CountDownLatch signal = new CountDownLatch(1);
+
+        BaasioUser user = Baas.io().getSignedInUser();
+        if (!ObjectUtils.isEmpty(user)) {
+            user.unsubscribeInBackground(getInstrumentation().getContext(),
+                    new BaasioCallback<BaasioUser>() {
+
+                        @Override
+                        public void onResponse(BaasioUser response) {
+                            LogUtils.LOGV(TAG, response.toString());
+
+                            signal.countDown();
+                        }
+
+                        @Override
+                        public void onException(BaasioException e) {
+                            LogUtils.LOGV(TAG, e.toString());
+
+                            signal.countDown();
+                        }
+                    });
+
+            signal.await();
+        }
     }
 
     public void test999Uninit() throws InterruptedException {
