@@ -13,4 +13,5 @@ public class BaasioConfig {
     // GCM(google cloud messaging service) sender ID
     public static final String GCM_SENDER_ID = null;
 
+    public static final String GCM_SENDER_ID2 = null;
 }

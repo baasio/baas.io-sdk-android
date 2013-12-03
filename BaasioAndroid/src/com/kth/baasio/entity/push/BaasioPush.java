@@ -22,6 +22,7 @@ import android.content.Context;
 import android.text.TextUtils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Random;
@@ -160,6 +161,8 @@ public class BaasioPush {
                 if (response != null) {
                     BaasioDevice entity = response.getFirstEntity().toType(BaasioDevice.class);
                     if (!ObjectUtils.isEmpty(entity)) {
+                        BaasioPreferences
+                                .setRegisteredSenderId(context, Baas.io().getGcmSenderId());
                         GCMRegistrar.setRegisteredOnServer(context, true);
 
                         BaasioPreferences.setRegisteredTags(context, tagString);
@@ -221,6 +224,31 @@ public class BaasioPush {
         return null;
     }
 
+    private static boolean compareArrays(String[] arr1, String[] arr2) {
+        if (ObjectUtils.isEmpty(arr1) || ObjectUtils.isEmpty(arr2)) {
+            return false;
+        }
+
+        Arrays.sort(arr1);
+        Arrays.sort(arr2);
+        return Arrays.equals(arr1, arr2);
+    }
+
+    private static boolean needRegisterSenderId(Context context, String regId) {
+        if (TextUtils.isEmpty(regId)) {
+            LogUtils.LOGD(TAG, "RegId is empty. Need register Sender ID.");
+            return true;
+        }
+
+        String[] oldSenderIds = BaasioPreferences.getRegisteredSenderId(context);
+        String[] newSenderIds = Baas.io().getGcmSenderId();
+        if (!compareArrays(oldSenderIds, newSenderIds)) {
+            LogUtils.LOGD(TAG, "SenderID is different. Need register Sender ID.");
+            return true;
+        }
+        return false;
+    }
+
     /**
      * Register device. If server is not available(HTTP status 5xx), it will
      * retry 5 times. Executes asynchronously in background and the callbacks
@@ -241,7 +269,7 @@ public class BaasioPush {
 
         final String regId = GCMRegistrar.getRegistrationId(context);
 
-        if (TextUtils.isEmpty(regId)) {
+        if (needRegisterSenderId(context, regId)) {
             GCMRegistrar.register(context, Baas.io().getGcmSenderId());
         } else {
             BaasioDeviceAsyncTask task = new BaasioDeviceAsyncTask(callback) {
