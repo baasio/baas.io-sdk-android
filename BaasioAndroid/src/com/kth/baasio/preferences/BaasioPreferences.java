@@ -2,6 +2,7 @@
 package com.kth.baasio.preferences;
 
 import com.kth.baasio.exception.BaasioError;
+import com.kth.baasio.utils.JsonUtils;
 import com.kth.baasio.utils.ObjectUtils;
 import com.kth.common.PlatformSpecificImplementationFactory;
 import com.kth.common.preference.SharedPreferenceSaver;
@@ -27,12 +28,14 @@ public class BaasioPreferences {
 
     private static final String SHARED_PREFERENCE_NAME_ACCESS_TOKEN = "baasio_access_token";
 
+    private static final String SHARED_PREFERENCE_NAME_REGISTERED_SENDER_ID_FOR_PUSH = "baasio_registered_sender_id";
+
     private static final String SHARED_PREFERENCE_NAME_REGISTERED_DEVICE_UUID_FOR_PUSH = "baasio_registered_device_uuid_for_push";
 
     private static final String SHARED_PREFERENCE_NAME_REGISTERED_USERNAME_FOR_PUSH = "baasio_registered_username_for_push";
 
     private static final String SHARED_PREFERENCE_NAME_REGISTERED_TAGS_FOR_PUSH = "baasio_registered_tag_for_push";
-    
+
     private static final String SHARED_PREFERENCE_NAME_REGISTERED_REGID_FOR_PUSH = "baasio_registered_regid_for_push";
 
     private static final String SHARED_PREFERENCE_NAME_NEED_REGISTER_TAGS_FOR_PUSH = "baasio_need_register_tag_for_push";
@@ -121,6 +124,33 @@ public class BaasioPreferences {
         return result;
     }
 
+    public static void setRegisteredSenderId(Context context, String[] string) {
+        SharedPreferences.Editor editor = getPreference(context).edit();
+
+        if (!ObjectUtils.isEmpty(string)) {
+            String result = JsonUtils.toJsonString(string);
+            editor.putString(SHARED_PREFERENCE_NAME_REGISTERED_SENDER_ID_FOR_PUSH, result);
+        } else {
+            editor.putString(SHARED_PREFERENCE_NAME_REGISTERED_SENDER_ID_FOR_PUSH, "");
+        }
+
+        SharedPreferenceSaver saver = PlatformSpecificImplementationFactory
+                .getSharedPreferenceSaver(context);
+        saver.savePreferences(editor, false);
+    }
+
+    public static String[] getRegisteredSenderId(Context context) {
+        SharedPreferences prefs = getPreference(context);
+        String resultString = prefs.getString(SHARED_PREFERENCE_NAME_REGISTERED_SENDER_ID_FOR_PUSH,
+                "");
+        if (!ObjectUtils.isEmpty(resultString)) {
+            String[] result = JsonUtils.fromJsonString(resultString, String[].class);
+
+            return result;
+        }
+        return null;
+    }
+
     public static void setRegisteredUserName(Context context, String string) {
         SharedPreferences.Editor editor = getPreference(context).edit();
         editor.putString(SHARED_PREFERENCE_NAME_REGISTERED_USERNAME_FOR_PUSH, string);
@@ -152,7 +182,7 @@ public class BaasioPreferences {
 
         return result;
     }
-    
+
     public static void setRegisteredRegId(Context context, String string) {
         SharedPreferences.Editor editor = getPreference(context).edit();
         editor.putString(SHARED_PREFERENCE_NAME_REGISTERED_REGID_FOR_PUSH, string);

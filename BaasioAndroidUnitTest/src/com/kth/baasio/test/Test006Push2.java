@@ -22,12 +22,12 @@ import android.test.InstrumentationTestCase;
 
 import java.util.concurrent.CountDownLatch;
 
-public class Test004Push extends InstrumentationTestCase {
-    private static final String TAG = LogUtils.makeLogTag(Test004Push.class);
+public class Test006Push2 extends InstrumentationTestCase {
+    private static final String TAG = LogUtils.makeLogTag(Test006Push2.class);
 
     private static AsyncTask mGCMRegisterTask;
 
-    public Test004Push() {
+    public Test006Push2() {
         super();
     }
 
@@ -66,7 +66,7 @@ public class Test004Push extends InstrumentationTestCase {
                         LogUtils.LOGV(TAG, response.toString());
                         signal.countDown();
                     }
-                }, BaasioConfig.GCM_SENDER_ID);
+                }, BaasioConfig.GCM_SENDER_ID2);
 
         if (mGCMRegisterTask != null) {
             signal.await();
@@ -472,6 +472,72 @@ public class Test004Push extends InstrumentationTestCase {
                 if (!response.getPlatform().contains(BaasioMessage.PLATFORM_TYPE_GCM)
                         || !response.getPlatform().contains(BaasioMessage.PLATFORM_TYPE_IOS)) {
                     fail("Not target all msg");
+                }
+
+                signal.countDown();
+            }
+
+            @Override
+            public void onException(BaasioException e) {
+                LogUtils.LOGE(TAG, e.toString());
+                fail(e.toString());
+
+                signal.countDown();
+            }
+        });
+
+        signal.await();
+    }
+
+    public void test401Init_User1SignOut() throws InterruptedException {
+        BaasioUser.signOut(getInstrumentation().getContext());
+    }
+
+    public void test402Init_User1SignIn() throws InterruptedException {
+        final CountDownLatch signal = new CountDownLatch(1);
+
+        BaasioUser.signInInBackground(getInstrumentation().getContext(),
+                UnitTestConfig.USER1_USERNAME, UnitTestConfig.COMMON_PASSWORD,
+                new BaasioSignInCallback() {
+
+                    @Override
+                    public void onException(BaasioException e) {
+                        LogUtils.LOGE(TAG, e.toString());
+                        fail(e.toString());
+
+                        signal.countDown();
+                    }
+
+                    @Override
+                    public void onResponse(BaasioUser response) {
+                        LogUtils.LOGV(TAG, response.toString());
+                        signal.countDown();
+                    }
+                });
+
+        signal.await();
+    }
+
+    public void test501SendTargetUserMsg() throws InterruptedException {
+        final CountDownLatch signal = new CountDownLatch(1);
+
+        BaasioUser user = Baas.io().getSignedInUser();
+        if (!user.getUsername().equals(UnitTestConfig.USER1_USERNAME)) {
+            fail("Not user1");
+        }
+        final BaasioMessage msg = new BaasioMessage();
+        msg.setTarget(BaasioMessage.TARGET_TYPE_USER);
+        msg.setTo(user.getUuid().toString());
+        msg.setMessage(UnitTestConfig.PUSH_TARGET_USER_MSG2, null, null);
+
+        BaasioPush.sendPushInBackground(msg, new BaasioCallback<BaasioMessage>() {
+
+            @Override
+            public void onResponse(BaasioMessage response) {
+                LogUtils.LOGV(TAG, response.toString());
+
+                if (!BaasioMessage.TARGET_TYPE_USER.equalsIgnoreCase(response.getTarget())) {
+                    fail("Not target user");
                 }
 
                 signal.countDown();
