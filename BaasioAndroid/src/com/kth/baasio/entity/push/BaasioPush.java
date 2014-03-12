@@ -238,7 +238,7 @@ public class BaasioPush {
                             eREG_STATE = REG_STATE.UPDATE_DEVICE_BY_REGID;
                         }
                     } else if (eREG_STATE == REG_STATE.UPDATE_DEVICE_BY_REGID) {
-                        if (statusCode.equals("400") && e.getErrorCode() == 103) {
+                        if (statusCode.equals("400")) {
                             eREG_STATE = REG_STATE.UPDATE_DEVICE_BY_UUID;
                             i--;
                         }
@@ -381,8 +381,7 @@ public class BaasioPush {
     }
 
     /**
-     * Unregister device. However, server is not available(HTTP status 5xx), it
-     * will not retry.
+     * Unregister device. If request failed, it will not retry.
      * 
      * @param context Context
      */
