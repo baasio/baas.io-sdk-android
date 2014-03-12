@@ -29,6 +29,11 @@ import java.util.Random;
 import java.util.regex.Pattern;
 
 public class BaasioPush {
+
+    enum REG_STATE {
+        CREATE_DEVICE, UPDATE_DEVICE_BY_REGID, UPDATE_DEVICE_BY_UUID
+    };
+
     private static final String TAG = LogUtils.makeLogTag(BaasioPush.class);
 
     private static final int MAX_ATTEMPTS = 5;
@@ -57,6 +62,40 @@ public class BaasioPush {
 
     }
 
+    private static boolean needRegister(Context context, String signedInUsername, String regId,
+            String oldRegId, String newTags) {
+        boolean bResult = true;
+
+        if (GCMRegistrar.isRegisteredOnServer(context)) {
+            String registeredUsername = BaasioPreferences.getRegisteredUserName(context);
+
+            if (registeredUsername.equals(signedInUsername)) {
+                String curTags = BaasioPreferences.getRegisteredTags(context);
+
+                if (curTags.equals(newTags)) {
+                    if (oldRegId.equals(regId)) {
+                        LogUtils.LOGV(TAG, "BaasioPush.register() called but already registered.");
+                        bResult = false;
+                    } else {
+                        LogUtils.LOGV(
+                                TAG,
+                                "BaasioPush.register() called. Already registered on the GCM server. But, need to register again because regId changed.");
+                    }
+                } else {
+                    LogUtils.LOGV(
+                            TAG,
+                            "BaasioPush.register() called. Already registered on the GCM server. But, need to register again because tags changed.");
+                }
+            } else {
+                LogUtils.LOGV(
+                        TAG,
+                        "BaasioPush.register() called. Already registered on the GCM server. But, need to register again because username changed.");
+            }
+        }
+
+        return bResult;
+    }
+
     public static BaasioDevice register(Context context, String regId) throws BaasioException {
         if (!Baas.io().isGcmEnabled()) {
             throw new BaasioException(BaasioError.ERROR_GCM_DISABLED);
@@ -76,31 +115,8 @@ public class BaasioPush {
         String newTags = BaasioPreferences.getNeedRegisteredTags(context);
         String oldRegId = BaasioPreferences.getRegisteredRegId(context);
 
-        if (GCMRegistrar.isRegisteredOnServer(context)) {
-            String registeredUsername = BaasioPreferences.getRegisteredUserName(context);
-
-            if (registeredUsername.equals(signedInUsername)) {
-                String curTags = BaasioPreferences.getRegisteredTags(context);
-
-                if (curTags.equals(newTags)) {
-                    if (oldRegId.equals(regId)) {
-                        LogUtils.LOGV(TAG, "BaasioPush.register() called but already registered.");
-                        throw new BaasioException(BaasioError.ERROR_GCM_ALREADY_REGISTERED);
-                    } else {
-                        LogUtils.LOGV(
-                                TAG,
-                                "BaasioPush.register() called. Already registered on the GCM server. But, need to register again because regId changed.");
-                    }
-                } else {
-                    LogUtils.LOGV(
-                            TAG,
-                            "BaasioPush.register() called. Already registered on the GCM server. But, need to register again because tags changed.");
-                }
-            } else {
-                LogUtils.LOGV(
-                        TAG,
-                        "BaasioPush.register() called. Already registered on the GCM server. But, need to register again because username changed.");
-            }
+        if (!needRegister(context, signedInUsername, regId, oldRegId, newTags)) {
+            throw new BaasioException(BaasioError.ERROR_GCM_ALREADY_REGISTERED);
         }
 
         BaasioDevice device = new BaasioDevice();
@@ -125,39 +141,62 @@ public class BaasioPush {
         device.setTags(tags);
 
         long backoff = BACKOFF_MILLIS + sRandom.nextInt(1000);
+        REG_STATE eREG_STATE = REG_STATE.CREATE_DEVICE;
+
+        if (!ObjectUtils.isEmpty(oldRegId)) {
+            if (!oldRegId.equals(regId)) {
+                LogUtils.LOGV(TAG, "RegId changed!!!!");
+
+                LogUtils.LOGV(TAG, "New RegId: " + regId);
+                LogUtils.LOGV(TAG, "Old RegId: " + oldRegId);
+            } else {
+                LogUtils.LOGV(TAG, "New and old regId are same!!!");
+
+                LogUtils.LOGV(TAG, "RegId: " + oldRegId);
+            }
+
+            eREG_STATE = REG_STATE.UPDATE_DEVICE_BY_REGID;
+        }
 
         for (int i = 1; i <= MAX_ATTEMPTS; i++) {
             LogUtils.LOGV(TAG, "#" + i + " Attempt..");
+            REG_STATE curState = eREG_STATE;
             try {
                 BaasioResponse response = null;
-                if (ObjectUtils.isEmpty(oldRegId)) {
-                    LogUtils.LOGV(TAG, "POST /devices");
-                    LogUtils.LOGV(TAG, "Request: " + device.toString());
 
-                    response = Baas.io().apiRequest(HttpMethod.POST, null, device, "devices");
+                switch (eREG_STATE) {
+                    case CREATE_DEVICE: {
+                        LogUtils.LOGV(TAG, "POST /devices");
+                        LogUtils.LOGV(TAG, "Request: " + device.toString());
 
-                    LogUtils.LOGV(TAG, "Response: " + response.toString());
-                } else {
-                    if (!oldRegId.equals(regId)) {
-                        LogUtils.LOGV(TAG, "RegId changed!!!!");
+                        response = Baas.io().apiRequest(HttpMethod.POST, null, device, "devices");
 
-                        LogUtils.LOGV(TAG, "New RegId: " + regId);
-                        LogUtils.LOGV(TAG, "Old RegId: " + oldRegId);
-                    } else {
-                        LogUtils.LOGV(TAG, "New and old regId are same!!!");
-
-                        LogUtils.LOGV(TAG, "RegId: " + oldRegId);
+                        LogUtils.LOGV(TAG, "Response: " + response.toString());
+                        break;
                     }
+                    case UPDATE_DEVICE_BY_REGID: {
+                        LogUtils.LOGV(TAG, "PUT /devices/" + oldRegId);
+                        LogUtils.LOGV(TAG, "Request: " + device.toString());
 
-                    LogUtils.LOGV(TAG, "PUT /devices/" + oldRegId);
-                    LogUtils.LOGV(TAG, "Request: " + device.toString());
+                        response = Baas.io().apiRequest(HttpMethod.PUT, null, device, "devices",
+                                oldRegId);
 
-                    response = Baas.io().apiRequest(HttpMethod.PUT, null, device, "devices",
-                            oldRegId);
+                        LogUtils.LOGV(TAG, "Response: " + response.toString());
+                        break;
+                    }
+                    case UPDATE_DEVICE_BY_UUID: {
+                        String deviceUuid = BaasioPreferences.getDeviceUuidForPush(context);
 
-                    LogUtils.LOGV(TAG, "Response: " + response.toString());
+                        LogUtils.LOGV(TAG, "PUT /devices/" + deviceUuid);
+                        LogUtils.LOGV(TAG, "Request: " + device.toString());
+
+                        response = Baas.io().apiRequest(HttpMethod.PUT, null, device, "devices",
+                                deviceUuid);
+
+                        LogUtils.LOGV(TAG, "Response: " + response.toString());
+                        break;
+                    }
                 }
-
                 if (response != null) {
                     BaasioDevice entity = response.getFirstEntity().toType(BaasioDevice.class);
                     if (!ObjectUtils.isEmpty(entity)) {
@@ -179,23 +218,34 @@ public class BaasioPush {
                     throw new BaasioException(BaasioError.ERROR_UNKNOWN_NORESULT_ENTITY);
                 }
             } catch (BaasioException e) {
-                LogUtils.LOGV(TAG, e.toString());
+                LogUtils.LOGV(TAG, "Failed to register on attempt " + i, e);
 
                 String statusCode = e.getStatusCode();
                 if (!ObjectUtils.isEmpty(statusCode)) {
-                    if (statusCode.equals("400") && e.getErrorCode() == 913) {
-                        // 이미 regId가 등록되어 있음. 하지만 태그 정보가 업데이트되어 있는지 알 수 없으니
-                        // Retry
 
-                        LogUtils.LOGV(
-                                TAG,
-                                "Already registered on the GCM server. But, need to register again because other data could be changed.");
+                    if (eREG_STATE == REG_STATE.CREATE_DEVICE) {
+                        if (statusCode.equals("400") && e.getErrorCode() == 913) {
+                            // 이미 regId가 등록되어 있음. 하지만 태그 정보가 업데이트되어 있는지 알 수 없으니
+                            // Retry
 
-                        oldRegId = regId;
-                        i = 1;
-                    } else {
-                        if (!statusCode.startsWith("5")) {
-                            break;
+                            LogUtils.LOGV(
+                                    TAG,
+                                    "Already registered on the GCM server. But, need to register again because other data could be changed.");
+
+                            oldRegId = regId;
+                            i--;
+
+                            eREG_STATE = REG_STATE.UPDATE_DEVICE_BY_REGID;
+                        }
+                    } else if (eREG_STATE == REG_STATE.UPDATE_DEVICE_BY_REGID) {
+                        if (statusCode.equals("400")) {
+                            eREG_STATE = REG_STATE.UPDATE_DEVICE_BY_UUID;
+                            i--;
+                        }
+                    } else if (eREG_STATE == REG_STATE.UPDATE_DEVICE_BY_UUID) {
+                        if (statusCode.equals("404")) {
+                            eREG_STATE = REG_STATE.CREATE_DEVICE;
+                            i--;
                         }
                     }
                 }
@@ -203,21 +253,26 @@ public class BaasioPush {
                 // Here we are simplifying and retrying on any error; in a real
                 // application, it should retry only on unrecoverable errors
                 // (like HTTP error code 503).
-                LogUtils.LOGE(TAG, "Failed to register on attempt " + i, e);
-                if (i == MAX_ATTEMPTS) {
+
+                if (i >= MAX_ATTEMPTS) {
+                    LogUtils.LOGE(TAG,
+                            "Failed all attempts to register. Next time application launched, will try again.");
                     break;
                 }
-                try {
-                    LogUtils.LOGV(TAG, "Sleeping for " + backoff + " ms before retry");
-                    Thread.sleep(backoff);
-                } catch (InterruptedException e1) {
-                    // Activity finished before we complete - exit.
-                    LogUtils.LOGD(TAG, "Thread interrupted: abort remaining retries!");
-                    Thread.currentThread().interrupt();
-                    return null;
+
+                if (curState == eREG_STATE) {
+                    try {
+                        LogUtils.LOGV(TAG, "Sleeping for " + backoff + " ms before retry");
+                        Thread.sleep(backoff);
+                    } catch (InterruptedException e1) {
+                        // Activity finished before we complete - exit.
+                        LogUtils.LOGD(TAG, "Thread interrupted: abort remaining retries!");
+                        Thread.currentThread().interrupt();
+                        return null;
+                    }
+                    // increase backoff exponentially
+                    backoff *= 2;
                 }
-                // increase backoff exponentially
-                backoff *= 2;
             }
         }
 
@@ -326,8 +381,7 @@ public class BaasioPush {
     }
 
     /**
-     * Unregister device. However, server is not available(HTTP status 5xx), it
-     * will not retry.
+     * Unregister device. If request failed, it will not retry.
      * 
      * @param context Context
      */
@@ -340,13 +394,10 @@ public class BaasioPush {
             throw new BaasioException(BaasioError.ERROR_GCM_ALREADY_UNREGISTERED);
         }
 
-        String regId = BaasioPreferences.getRegisteredRegId(context);
+        String deviceUuid = BaasioPreferences.getDeviceUuidForPush(context);
 
-        if (!ObjectUtils.isEmpty(regId)) {
-            LogUtils.LOGV(TAG, "DELETE /devices/" + regId);
-
-            BaasioResponse response = Baas.io().apiRequest(HttpMethod.DELETE, null, null,
-                    "devices", regId);
+        if (!ObjectUtils.isEmpty(deviceUuid)) {
+            LogUtils.LOGV(TAG, "DELETE /devices/" + deviceUuid);
 
             BaasioPreferences.setDeviceUuidForPush(context, "");
             BaasioPreferences.setNeedRegisteredTags(context, "");
@@ -355,6 +406,9 @@ public class BaasioPush {
             BaasioPreferences.setRegisteredRegId(context, "");
 
             GCMRegistrar.setRegisteredOnServer(context, false);
+
+            BaasioResponse response = Baas.io().apiRequest(HttpMethod.DELETE, null, null,
+                    "devices", deviceUuid);
 
             if (response != null) {
                 LogUtils.LOGV(TAG, "Response: " + response.toString());
