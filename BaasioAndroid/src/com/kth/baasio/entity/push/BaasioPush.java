@@ -160,7 +160,7 @@ public class BaasioPush {
 
         for (int i = 1; i <= MAX_ATTEMPTS; i++) {
             LogUtils.LOGV(TAG, "#" + i + " Attempt..");
-            int curAttempt = i;
+            REG_STATE curState = eREG_STATE;
             try {
                 BaasioResponse response = null;
 
@@ -218,7 +218,7 @@ public class BaasioPush {
                     throw new BaasioException(BaasioError.ERROR_UNKNOWN_NORESULT_ENTITY);
                 }
             } catch (BaasioException e) {
-                LogUtils.LOGV(TAG, e.toString());
+                LogUtils.LOGV(TAG, "Failed to register on attempt " + i, e);
 
                 String statusCode = e.getStatusCode();
                 if (!ObjectUtils.isEmpty(statusCode)) {
@@ -238,7 +238,7 @@ public class BaasioPush {
                             eREG_STATE = REG_STATE.UPDATE_DEVICE_BY_REGID;
                         }
                     } else if (eREG_STATE == REG_STATE.UPDATE_DEVICE_BY_REGID) {
-                        if (statusCode.equals("404")) {
+                        if (statusCode.equals("400") && e.getErrorCode() == 103) {
                             eREG_STATE = REG_STATE.UPDATE_DEVICE_BY_UUID;
                             i--;
                         }
@@ -253,12 +253,14 @@ public class BaasioPush {
                 // Here we are simplifying and retrying on any error; in a real
                 // application, it should retry only on unrecoverable errors
                 // (like HTTP error code 503).
-                LogUtils.LOGE(TAG, "Failed to register on attempt " + i, e);
+
                 if (i >= MAX_ATTEMPTS) {
+                    LogUtils.LOGE(TAG,
+                            "Failed all attempts to register. Next time application launched, will try again.");
                     break;
                 }
 
-                if (curAttempt != i) {
+                if (curState == eREG_STATE) {
                     try {
                         LogUtils.LOGV(TAG, "Sleeping for " + backoff + " ms before retry");
                         Thread.sleep(backoff);
