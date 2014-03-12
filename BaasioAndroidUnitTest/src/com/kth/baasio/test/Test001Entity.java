@@ -638,8 +638,9 @@ public class Test001Entity extends InstrumentationTestCase {
         entity1.setName(mEntity1.getName());
 
         BaasioQuery query = new BaasioQuery();
-        query.setRelation(entity1, UnitTestConfig.RELATIONSHIP_NAME);
-        query.setWheres(BaasioUser.PROPERTY_NAME + "='" + mEntity2.getName() + "'");
+        query.setRawString(UnitTestConfig.ENTITY1_TYPE + "/" + entity1.getUniqueKey() + "/"
+                + UnitTestConfig.RELATIONSHIP_NAME + "/" + UnitTestConfig.ENTITY2_TYPE + "/"
+                + mEntity2.getUniqueKey());
 
         query.queryInBackground(new BaasioQueryCallback() {
 
@@ -726,8 +727,9 @@ public class Test001Entity extends InstrumentationTestCase {
         entity1.setName(mEntity1.getName());
 
         BaasioQuery query = new BaasioQuery();
-        query.setRelation(entity1, UnitTestConfig.RELATIONSHIP_NAME);
-        query.setWheres(BaasioUser.PROPERTY_NAME + "='" + mEntity2.getName() + "'");
+        query.setRawString(UnitTestConfig.ENTITY1_TYPE + "/" + entity1.getUniqueKey() + "/"
+                + UnitTestConfig.RELATIONSHIP_NAME + "/" + UnitTestConfig.ENTITY2_TYPE + "/"
+                + mEntity2.getUniqueKey());
 
         query.queryInBackground(new BaasioQueryCallback() {
 
@@ -744,7 +746,9 @@ public class Test001Entity extends InstrumentationTestCase {
             @Override
             public void onException(BaasioException e) {
                 LogUtils.LOGE(TAG, e.toString());
-                fail(e.toString());
+                if (!e.getStatusCode().equals("404") || e.getErrorCode() != 101) {
+                    fail(e.toString());
+                }
 
                 signal.countDown();
             }
@@ -804,8 +808,9 @@ public class Test001Entity extends InstrumentationTestCase {
         entity1.setName(mEntity1.getName());
 
         BaasioQuery query = new BaasioQuery();
-        query.setRelation(entity1, UnitTestConfig.RELATIONSHIP_NAME);
-        query.setWheres(BaasioUser.PROPERTY_NAME + "='" + mEntity2.getName() + "'");
+        query.setRawString(UnitTestConfig.ENTITY1_TYPE + "/" + entity1.getUniqueKey() + "/"
+                + UnitTestConfig.RELATIONSHIP_NAME + "/" + UnitTestConfig.ENTITY2_TYPE + "/"
+                + mEntity2.getUniqueKey());
 
         query.queryInBackground(new BaasioQueryCallback() {
 
@@ -892,8 +897,9 @@ public class Test001Entity extends InstrumentationTestCase {
         entity1.setName(mEntity1.getName());
 
         BaasioQuery query = new BaasioQuery();
-        query.setRelation(entity1, UnitTestConfig.RELATIONSHIP_NAME);
-        query.setWheres(BaasioUser.PROPERTY_NAME + "='" + mEntity2.getName() + "'");
+        query.setRawString(UnitTestConfig.ENTITY1_TYPE + "/" + entity1.getUniqueKey() + "/"
+                + UnitTestConfig.RELATIONSHIP_NAME + "/" + UnitTestConfig.ENTITY2_TYPE + "/"
+                + mEntity2.getUniqueKey());
 
         query.queryInBackground(new BaasioQueryCallback() {
 
@@ -910,7 +916,9 @@ public class Test001Entity extends InstrumentationTestCase {
             @Override
             public void onException(BaasioException e) {
                 LogUtils.LOGE(TAG, e.toString());
-                fail(e.toString());
+                if (!e.getStatusCode().equals("404") || e.getErrorCode() != 101) {
+                    fail(e.toString());
+                }
 
                 signal.countDown();
             }
