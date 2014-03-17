@@ -239,8 +239,16 @@ public class BaasioPush {
                         }
                     } else if (eREG_STATE == REG_STATE.UPDATE_DEVICE_BY_REGID) {
                         if (statusCode.equals("400")) {
-                            eREG_STATE = REG_STATE.UPDATE_DEVICE_BY_UUID;
-                            i--;
+                            String deviceUuid = BaasioPreferences.getDeviceUuidForPush(context);
+
+                            if (!ObjectUtils.isEmpty(deviceUuid)) {
+                                eREG_STATE = REG_STATE.UPDATE_DEVICE_BY_UUID;
+                                i--;
+                            } else {
+                                LogUtils.LOGE(TAG,
+                                        "Failed to register. This should not happen. Give up registering.");
+                                break;
+                            }
                         }
                     } else if (eREG_STATE == REG_STATE.UPDATE_DEVICE_BY_UUID) {
                         if (statusCode.equals("404")) {
@@ -395,18 +403,18 @@ public class BaasioPush {
         }
 
         String deviceUuid = BaasioPreferences.getDeviceUuidForPush(context);
+        String oldRegId = BaasioPreferences.getRegisteredRegId(context);
+
+        BaasioPreferences.setDeviceUuidForPush(context, "");
+        BaasioPreferences.setNeedRegisteredTags(context, "");
+        BaasioPreferences.setRegisteredUserName(context, "");
+        BaasioPreferences.setRegisteredTags(context, "");
+        BaasioPreferences.setRegisteredRegId(context, "");
+
+        GCMRegistrar.setRegisteredOnServer(context, false);
 
         if (!ObjectUtils.isEmpty(deviceUuid)) {
             LogUtils.LOGV(TAG, "DELETE /devices/" + deviceUuid);
-
-            BaasioPreferences.setDeviceUuidForPush(context, "");
-            BaasioPreferences.setNeedRegisteredTags(context, "");
-            BaasioPreferences.setRegisteredUserName(context, "");
-            BaasioPreferences.setRegisteredTags(context, "");
-            BaasioPreferences.setRegisteredRegId(context, "");
-
-            GCMRegistrar.setRegisteredOnServer(context, false);
-
             BaasioResponse response = Baas.io().apiRequest(HttpMethod.DELETE, null, null,
                     "devices", deviceUuid);
 
@@ -415,6 +423,19 @@ public class BaasioPush {
                 return response;
             } else {
                 throw new BaasioException(BaasioError.ERROR_UNKNOWN_NO_RESPONSE_DATA);
+            }
+        } else {
+            if (!ObjectUtils.isEmpty(oldRegId)) {
+                LogUtils.LOGV(TAG, "DELETE /devices/" + oldRegId);
+                BaasioResponse response = Baas.io().apiRequest(HttpMethod.DELETE, null, null,
+                        "devices", oldRegId);
+
+                if (response != null) {
+                    LogUtils.LOGV(TAG, "Response: " + response.toString());
+                    return response;
+                } else {
+                    throw new BaasioException(BaasioError.ERROR_UNKNOWN_NO_RESPONSE_DATA);
+                }
             }
         }
 
