@@ -249,9 +249,13 @@ public class BaasioPush {
                                 i--;
                             } else {
                                 LogUtils.LOGE(TAG,
-                                        "Failed to register. This should not happen. Give up registering.");
+                                        "Failed to register. This should not happen. Give up registering.(400)");
                                 break;
                             }
+                        } else if (statusCode.equals("404")) {
+                            LogUtils.LOGE(TAG,
+                                    "Failed to register. This should not happen. Give up registering.(404)");
+                            break;
                         }
                     } else if (eREG_STATE == REG_STATE.UPDATE_DEVICE_BY_UUID) {
                         if (statusCode.equals("404")) {
