@@ -38,7 +38,9 @@ public class BaasioPush {
 
     private static final int MAX_ATTEMPTS = 5;
 
-    private static final int BACKOFF_MILLIS = 2000;
+    private static final int BACKOFF_MILLIS = 4000;
+
+    private static final int BACKOFF_MILLIS_DEFAULT = 3000;
 
     private static final Random sRandom = new Random();
 
@@ -238,7 +240,8 @@ public class BaasioPush {
                             eREG_STATE = REG_STATE.UPDATE_DEVICE_BY_REGID;
                         }
                     } else if (eREG_STATE == REG_STATE.UPDATE_DEVICE_BY_REGID) {
-                        if (statusCode.equals("400")) {
+                        if (statusCode.equals("400")
+                                && (e.getErrorCode() == 620 || e.getErrorCode() == 103)) {
                             String deviceUuid = BaasioPreferences.getDeviceUuidForPush(context);
 
                             if (!ObjectUtils.isEmpty(deviceUuid)) {
@@ -252,6 +255,10 @@ public class BaasioPush {
                         }
                     } else if (eREG_STATE == REG_STATE.UPDATE_DEVICE_BY_UUID) {
                         if (statusCode.equals("404")) {
+                            eREG_STATE = REG_STATE.CREATE_DEVICE;
+                            i--;
+                        } else if (statusCode.equals("400")
+                                && (e.getErrorCode() == 620 || e.getErrorCode() == 103)) {
                             eREG_STATE = REG_STATE.CREATE_DEVICE;
                             i--;
                         }
@@ -280,6 +287,17 @@ public class BaasioPush {
                     }
                     // increase backoff exponentially
                     backoff *= 2;
+                } else {
+                    try {
+                        LogUtils.LOGV(TAG, "Sleeping for " + BACKOFF_MILLIS_DEFAULT
+                                + " ms before retry");
+                        Thread.sleep(BACKOFF_MILLIS_DEFAULT);
+                    } catch (InterruptedException e1) {
+                        // Activity finished before we complete - exit.
+                        LogUtils.LOGD(TAG, "Thread interrupted: abort remaining retries!");
+                        Thread.currentThread().interrupt();
+                        return null;
+                    }
                 }
             }
         }
