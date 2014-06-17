@@ -49,6 +49,7 @@ import android.os.Build;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -408,11 +409,15 @@ public class Baas {
         ArrayList<String> list = new ArrayList<String>();
         list.add(baasioId);
         list.add(applicationId);
+        list.add("pasta");
         list.addAll(Arrays.asList(segments));
 
         String[] newSegments = list.toArray(new String[list.size()]);
 
-        String pastaUrl = "pasta-" + baasioUrl;
+        URL url = UrlUtils.url(baasioUrl);
+        String host = url.getHost();
+
+        String pastaUrl = url.getProtocol() + "://pasta-" + host;
 
         T response = null;
         try {
