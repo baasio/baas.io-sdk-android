@@ -49,6 +49,7 @@ import android.os.Build;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -315,7 +316,8 @@ public class Baas {
 
         BaasioResponse response = null;
         try {
-            response = httpRequest(method, BaasioResponse.class, params, data, newSegments);
+            response = httpRequest(baasioUrl, method, BaasioResponse.class, params, data,
+                    newSegments);
         } catch (ResourceAccessException e) {
             String message = e.getMessage();
             if (message != null && message.contains("No authentication challenges found")) {
@@ -364,7 +366,62 @@ public class Baas {
 
         T response = null;
         try {
-            response = httpRequest(method, cls, params, data, newSegments);
+            response = httpRequest(baasioUrl, method, cls, params, data, newSegments);
+        } catch (ResourceAccessException e) {
+            String message = e.getMessage();
+            if (message != null && message.contains("No authentication challenges found")) {
+                LogUtils.LOGV(TAG, "Need Login");
+
+                fireUnauthorized();
+            }
+            throw new BaasioException(e);
+        } catch (HttpClientErrorException e) {
+            if (e.getStatusCode().equals(HttpStatus.UNAUTHORIZED)) {
+                LogUtils.LOGV(TAG, "Need Login");
+
+                fireUnauthorized();
+            }
+            throw new BaasioException(e.getStatusCode(), e.getResponseBodyAsString());
+        } catch (HttpServerErrorException e) {
+            throw new BaasioException(e.getStatusCode(), e.getResponseBodyAsString());
+        }
+        return response;
+    }
+
+    /**
+     * Send baas.io custom API request
+     * 
+     * @param method HTTP method
+     * @param cls Result object class
+     * @param params URL parameters
+     * @param data HTTP entity
+     * @param segments URL segments(paths)
+     * @return Response for API request with class type
+     */
+    public <T> T pastaApiRequest(HttpMethod method, Class<T> cls, Map<String, Object> params,
+            Object data, String... segments) throws BaasioException {
+        assertInited();
+
+        assertValidBaasioUrl();
+        assertValidBaasioId();
+        assertValidApplicationId();
+
+        ArrayList<String> list = new ArrayList<String>();
+        list.add(baasioId);
+        list.add(applicationId);
+        list.add("pasta");
+        list.addAll(Arrays.asList(segments));
+
+        String[] newSegments = list.toArray(new String[list.size()]);
+
+        URL url = UrlUtils.url(baasioUrl);
+        String host = url.getHost();
+
+        String pastaUrl = url.getProtocol() + "://pasta-" + host;
+
+        T response = null;
+        try {
+            response = httpRequest(pastaUrl, method, cls, params, data, newSegments);
         } catch (ResourceAccessException e) {
             String message = e.getMessage();
             if (message != null && message.contains("No authentication challenges found")) {
@@ -519,9 +576,9 @@ public class Baas {
      * @param segments Paths
      * @return Response for API request with class type
      */
-    public <T> T httpRequest(HttpMethod method, Class<T> cls, Map<String, Object> params,
-            Object data, String... segments) throws BaasioException {
-        assertValidBaasioUrl();
+    public <T> T httpRequest(String baseUrl, HttpMethod method, Class<T> cls,
+            Map<String, Object> params, Object data, String... segments) throws BaasioException {
+        // assertValidBaasioUrl();
 
         HttpHeaders requestHeaders = new HttpHeaders();
         requestHeaders.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
@@ -530,7 +587,7 @@ public class Baas {
             requestHeaders.set("Authorization", auth);
             LogUtils.LOGV(TAG, "Authorization: " + auth);
         }
-        String url = UrlUtils.path(baasioUrl, segments);
+        String url = UrlUtils.path(baseUrl, segments);
 
         MediaType contentType = MediaType.APPLICATION_JSON;
         if (method.equals(HttpMethod.POST) && ObjectUtils.isEmpty(data)

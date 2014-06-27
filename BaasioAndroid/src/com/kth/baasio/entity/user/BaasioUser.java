@@ -404,6 +404,36 @@ public class BaasioUser extends BaasioConnectableEntity {
     }
 
     /**
+     * Sign-up via Kakaotalk access token.
+     * 
+     * @param context Context
+     * @param kkt_access_token Kakaotalk access token
+     * @return Signed-up user
+     */
+    public static BaasioUser signUpViaKakaotalk(Context context, String kkt_access_token)
+            throws BaasioException {
+        return signInViaKakaotalk(context, kkt_access_token);
+    }
+
+    /**
+     * Sign-up via Kakaotalk OAuth token. Executes asynchronously in background
+     * and the callbacks are called in the UI thread.
+     * 
+     * @param context Context
+     * @param kkt_access_token Kakaotalk access token
+     * @param callback Result callback
+     */
+    public static void signUpViaKakaotalkInBackground(final Context context,
+            final String kkt_access_token, final BaasioSignInCallback callback) {
+        (new BaasioAsyncTask<BaasioUser>(callback) {
+            @Override
+            public BaasioUser doTask() throws BaasioException {
+                return signInViaKakaotalk(context, kkt_access_token);
+            }
+        }).execute();
+    }
+
+    /**
      * Sign-in.
      * 
      * @param context Context
@@ -524,6 +554,64 @@ public class BaasioUser extends BaasioConnectableEntity {
             @Override
             public BaasioUser doTask() throws BaasioException {
                 return signInViaFacebook(context, fb_access_token);
+            }
+        }).execute();
+    }
+
+    /**
+     * Sign-in via Kakaotalk access token.
+     * 
+     * @param context Context
+     * @param kkt_access_token Facebook access token
+     * @return Signed-in user
+     */
+    public static BaasioUser signInViaKakaotalk(Context context, String kkt_access_token)
+            throws BaasioException {
+        if (ObjectUtils.isEmpty(kkt_access_token)) {
+            throw new IllegalArgumentException(BaasioError.ERROR_MISSING_FACEBOOK_TOKEN);
+        }
+
+        Map<String, Object> formData = new HashMap<String, Object>();
+        formData.put("kkt_access_token", kkt_access_token);
+
+        BaasioResponse response = Baas.io().apiRequest(HttpMethod.POST, formData, null, "auth",
+                "kakaotalk");
+
+        if (response != null) {
+            BaasioUser loggedInUser = response.getUser();
+            String accessToken = response.getAccessToken();
+
+            if (!ObjectUtils.isEmpty(loggedInUser) && !ObjectUtils.isEmpty(accessToken)) {
+                Baas.io().setSignedInUser(loggedInUser);
+                Baas.io().setAccessToken(accessToken);
+
+                BaasioPreferences.setUserString(context, loggedInUser.toString());
+                BaasioPreferences.setAccessToken(context, accessToken);
+
+                BaasioPush.registerInBackground(context, null);
+                return response.getUser();
+            }
+
+            throw new BaasioException(BaasioError.ERROR_UNKNOWN_NORESULT_ENTITY);
+        }
+
+        throw new BaasioException(BaasioError.ERROR_UNKNOWN_NO_RESPONSE_DATA);
+    }
+
+    /**
+     * Sign-in via Kakaotalk access token. Executes asynchronously in background
+     * and the callbacks are called in the UI thread.
+     * 
+     * @param context Context
+     * @param kkt_access_token Kakaotalk access token
+     * @param callback Result callback
+     */
+    public static void signInViaKakaotalkInBackground(final Context context,
+            final String kkt_access_token, final BaasioSignInCallback callback) {
+        (new BaasioSignInAsyncTask(callback) {
+            @Override
+            public BaasioUser doTask() throws BaasioException {
+                return signInViaKakaotalk(context, kkt_access_token);
             }
         }).execute();
     }
