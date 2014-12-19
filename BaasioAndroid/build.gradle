@@ -2,9 +2,6 @@ apply plugin: 'android-library'
 
 repositories {
     mavenCentral()
-    maven {
-        url 'http://repo.spring.io/milestone'
-    }
 }
 
 dependencies {
