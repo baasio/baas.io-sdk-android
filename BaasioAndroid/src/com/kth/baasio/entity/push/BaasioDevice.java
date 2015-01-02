@@ -1,8 +1,6 @@
 
 package com.kth.baasio.entity.push;
 
-import static org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion.NON_NULL;
-
 import com.kth.baasio.entity.BaasioConnectableEntity;
 import com.kth.baasio.utils.JsonUtils;
 import com.kth.baasio.utils.ObjectUtils;
@@ -12,19 +10,21 @@ import org.codehaus.jackson.map.annotate.JsonSerialize;
 
 import java.util.List;
 
+import static org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion.NON_NULL;
+
 public class BaasioDevice extends BaasioConnectableEntity {
 
     public final static String ENTITY_TYPE = "device";
 
     public final static String PROPERTY_TOKEN = "token";
 
+    public final static String PROPERTY_TAGS = "tags";
+
     public final static String PROPERTY_PLATFORM = "platform";
 
     public final static String PLATFORM_TYPE_GCM = "G";
 
     public final static String PLATFORM_TYPE_IOS = "I";
-
-    private List<String> tags;
 
     public BaasioDevice() {
         super();
@@ -47,6 +47,7 @@ public class BaasioDevice extends BaasioConnectableEntity {
         List<String> properties = super.getPropertyNames();
         properties.add(PROPERTY_TOKEN);
         properties.add(PROPERTY_PLATFORM);
+        properties.add(PROPERTY_TAGS);
         return properties;
     }
 
@@ -93,6 +94,7 @@ public class BaasioDevice extends BaasioConnectableEntity {
      */
     @JsonSerialize(include = NON_NULL)
     public List<String> getTags() {
+        List<String> tags = JsonUtils.getStringArrayProperty(properties, PROPERTY_TAGS, List.class);
         if (ObjectUtils.isEmpty(tags)) {
             return null;
         }
@@ -105,6 +107,6 @@ public class BaasioDevice extends BaasioConnectableEntity {
      * @param tags List of tags.
      */
     public void setTags(List<String> tags) {
-        this.tags = tags;
+        JsonUtils.setStringArrayProperty(properties, PROPERTY_TAGS, tags);
     }
 }

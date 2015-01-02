@@ -8,9 +8,11 @@ import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.node.ArrayNode;
 import org.codehaus.jackson.node.JsonNodeFactory;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -187,6 +189,27 @@ public class JsonUtils {
             properties.remove(name);
         } else {
             properties.put(name, JsonNodeFactory.instance.textNode(value.toString()));
+        }
+    }
+
+    public static <T extends List<String>> List getStringArrayProperty(Map<String, JsonNode> properties, String name, Class<T> c) {
+        JsonNode value = properties.get(name);
+        if (value != null) {
+            return fromJsonNode(value, c);
+        }
+        return null;
+    }
+
+    public static <T extends List<String>> void setStringArrayProperty(Map<String, JsonNode> properties, String name, T valueList) {
+        if (valueList == null) {
+            properties.remove(name);
+        } else {
+            ArrayNode node = JsonNodeFactory.instance.arrayNode();
+            for(String value : valueList) {
+                node.add(JsonNodeFactory.instance.textNode((String) value));
+            }
+
+            properties.put(name, node);
         }
     }
 
