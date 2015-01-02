@@ -16,9 +16,10 @@
 
 package com.kth.baasio.test.gcm;
 
-import com.google.android.gcm.GCMBroadcastReceiver;
-
 import android.content.Context;
+
+import com.google.android.gcm.GCMBroadcastReceiver;
+import com.kth.baasio.Baas;
 
 /**
  * @author trevorjohns@google.com (Trevor Johns)
@@ -32,6 +33,9 @@ public class GCMRedirectedBroadcastReceiver extends GCMBroadcastReceiver {
      */
     @Override
     protected String getGCMIntentServiceClassName(Context context) {
-        return GCMIntentService.class.getCanonicalName();
+        if(Baas.io().isGcmEnabled())
+            return GCMIntentService.class.getCanonicalName();
+        else
+            return null;
     }
 }

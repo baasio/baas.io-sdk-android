@@ -1,6 +1,9 @@
 
 package com.kth.baasio.test;
 
+import android.os.AsyncTask;
+import android.test.InstrumentationTestCase;
+
 import com.kth.baasio.Baas;
 import com.kth.baasio.callback.BaasioCallback;
 import com.kth.baasio.callback.BaasioDeviceCallback;
@@ -16,10 +19,9 @@ import com.kth.baasio.exception.BaasioException;
 import com.kth.baasio.utils.ObjectUtils;
 import com.kth.common.utils.LogUtils;
 
-import android.os.AsyncTask;
-import android.test.InstrumentationTestCase;
-
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 public class Test003File extends InstrumentationTestCase {
@@ -48,8 +50,12 @@ public class Test003File extends InstrumentationTestCase {
                 BaasioConfig.BAASIO_ID, BaasioConfig.APPLICATION_ID);
 
         final CountDownLatch signal = new CountDownLatch(1);
+
+        List<String> tags = new ArrayList<String>();
+        tags.add(UnitTestConfig.PUSH_SHOULD_RECEIVE_TAG);
+
         mGCMRegisterTask = Baas.io().setGcmEnabled(getInstrumentation().getContext(),
-                UnitTestConfig.PUSH_SHOULD_RECEIVE_TAG, new BaasioDeviceCallback() {
+                tags, new BaasioDeviceCallback() {
 
                     @Override
                     public void onException(BaasioException e) {
