@@ -16,6 +16,15 @@ android {
     compileSdkVersion 19
     buildToolsVersion "21.1.1"
 
+    buildTypes {
+        release {
+            buildConfigField "boolean", "SDK_DEBUG", "false"
+        }
+        debug {
+            buildConfigField "boolean", "SDK_DEBUG", "true"
+        }
+    }
+
     sourceSets {
         main {
             manifest.srcFile 'AndroidManifest.xml'
