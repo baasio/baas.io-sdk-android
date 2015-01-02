@@ -1,7 +1,8 @@
 
 package com.kth.baasio.entity.user;
 
-import static org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion.NON_NULL;
+import android.content.Context;
+import android.net.Uri;
 
 import com.kth.baasio.Baas;
 import com.kth.baasio.callback.BaasioAsyncTask;
@@ -26,12 +27,11 @@ import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.springframework.http.HttpMethod;
 
-import android.content.Context;
-import android.net.Uri;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion.NON_NULL;
 
 public class BaasioUser extends BaasioConnectableEntity {
     private final static String TAG = LogUtils.makeLogTag(BaasioUser.class);
@@ -469,7 +469,7 @@ public class BaasioUser extends BaasioConnectableEntity {
                 BaasioPreferences.setUserString(context, loggedInUser.toString());
                 BaasioPreferences.setAccessToken(context, accessToken);
 
-                BaasioPush.registerInBackground(context, null);
+                BaasioPush.register(context);
 
                 return response.getUser();
             }
@@ -530,7 +530,7 @@ public class BaasioUser extends BaasioConnectableEntity {
                 BaasioPreferences.setUserString(context, loggedInUser.toString());
                 BaasioPreferences.setAccessToken(context, accessToken);
 
-                BaasioPush.registerInBackground(context, null);
+                BaasioPush.register(context);
                 return response.getUser();
             }
 
@@ -588,7 +588,7 @@ public class BaasioUser extends BaasioConnectableEntity {
                 BaasioPreferences.setUserString(context, loggedInUser.toString());
                 BaasioPreferences.setAccessToken(context, accessToken);
 
-                BaasioPush.registerInBackground(context, null);
+                BaasioPush.register(context);
                 return response.getUser();
             }
 
