@@ -1,16 +1,19 @@
 
 package com.kth.baasio.preferences;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.util.Base64;
+
 import com.kth.baasio.exception.BaasioError;
 import com.kth.baasio.utils.JsonUtils;
 import com.kth.baasio.utils.ObjectUtils;
 import com.kth.common.PlatformSpecificImplementationFactory;
 import com.kth.common.preference.SharedPreferenceSaver;
 
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.util.Base64;
-
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 
 import javax.crypto.Cipher;
@@ -167,20 +170,23 @@ public class BaasioPreferences {
         return result;
     }
 
-    public static void setRegisteredTags(Context context, String string) {
+    public static void setRegisteredTags(Context context, List<String> string) {
+        String tagString = getTagString(string);
+
         SharedPreferences.Editor editor = getPreference(context).edit();
-        editor.putString(SHARED_PREFERENCE_NAME_REGISTERED_TAGS_FOR_PUSH, string);
+        editor.putString(SHARED_PREFERENCE_NAME_REGISTERED_TAGS_FOR_PUSH, tagString);
 
         SharedPreferenceSaver saver = PlatformSpecificImplementationFactory
                 .getSharedPreferenceSaver(context);
         saver.savePreferences(editor, false);
     }
 
-    public static String getRegisteredTags(Context context) {
+    public static List<String> getRegisteredTags(Context context) {
         SharedPreferences prefs = getPreference(context);
         String result = prefs.getString(SHARED_PREFERENCE_NAME_REGISTERED_TAGS_FOR_PUSH, "");
 
-        return result;
+        List<String> tags = getTagList(result);
+        return tags;
     }
 
     public static void setRegisteredRegId(Context context, String string) {
@@ -199,20 +205,23 @@ public class BaasioPreferences {
         return result;
     }
 
-    public static void setNeedRegisteredTags(Context context, String string) {
+    public static void setNeedRegisteredTags(Context context, List<String> string) {
+        String tagString = getTagString(string);
+
         SharedPreferences.Editor editor = getPreference(context).edit();
-        editor.putString(SHARED_PREFERENCE_NAME_NEED_REGISTER_TAGS_FOR_PUSH, string);
+        editor.putString(SHARED_PREFERENCE_NAME_NEED_REGISTER_TAGS_FOR_PUSH, tagString);
 
         SharedPreferenceSaver saver = PlatformSpecificImplementationFactory
                 .getSharedPreferenceSaver(context);
         saver.savePreferences(editor, false);
     }
 
-    public static String getNeedRegisteredTags(Context context) {
+    public static List<String> getNeedRegisteredTags(Context context) {
         SharedPreferences prefs = getPreference(context);
         String result = prefs.getString(SHARED_PREFERENCE_NAME_NEED_REGISTER_TAGS_FOR_PUSH, "");
 
-        return result;
+        List<String> tags = getTagList(result);
+        return tags;
     }
 
     private static final char[] SEKRIT = new String("baasio_eoqkrqktm!@").toCharArray();
@@ -247,5 +256,39 @@ public class BaasioPreferences {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    protected static List<String> getTagList(String tagString) {
+        List<String> result = new ArrayList<String>();
+
+        if(tagString != null) {
+            String[] tags = tagString.split("\\,");
+            for (String tag : tags) {
+                tag = tag.toLowerCase(Locale.getDefault()).trim();
+                if (!ObjectUtils.isEmpty(tag)) {
+                    result.add(tag);
+                }
+            }
+        }
+
+        return result;
+    }
+
+    protected static String getTagString(List<String> tagString) {
+        StringBuilder result = new StringBuilder();
+
+        if(tagString != null) {
+            for (String tag : tagString) {
+                tag = tag.toLowerCase(Locale.getDefault()).trim();
+                if (!ObjectUtils.isEmpty(tag)) {
+                    if (result.length() > 0) {
+                        result.append(",");
+                    }
+                    result.append(tag);
+                }
+            }
+        }
+
+        return result.toString();
     }
 }

@@ -1,6 +1,10 @@
 
 package com.kth.baasio;
 
+import android.content.Context;
+import android.content.Intent;
+import android.os.Build;
+
 import com.google.android.gcm.GCMRegistrar;
 import com.kth.baasio.callback.BaasioDeviceAsyncTask;
 import com.kth.baasio.callback.BaasioDeviceCallback;
@@ -43,10 +47,6 @@ import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
-import android.content.Context;
-import android.content.Intent;
-import android.os.Build;
-
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -56,6 +56,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -248,23 +249,39 @@ public class Baas {
      * @param gcmSenderId GCM sender ID
      * @return GCM registration task
      */
-    public BaasioDeviceAsyncTask setGcmEnabled(Context context, String tags,
+    public BaasioDeviceAsyncTask setGcmEnabled(Context context, List<String> tags,
             BaasioDeviceCallback callback, String... gcmSenderId) {
         if (!ObjectUtils.isEmpty(gcmSenderId) && !ObjectUtils.isEmpty(gcmSenderId[0])) {
             this.gcmSenderId = gcmSenderId;
 
             gcmEnabled = true;
 
-            if (!ObjectUtils.isEmpty(tags)) {
-                return BaasioPush.registerWithTagsInBackground(context, tags, callback);
-            } else {
-                return BaasioPush.registerInBackground(context, callback);
+            if (tags != null) {
+                setGcmTags(tags);
             }
         }
 
-        return null;
+        return BaasioPush.registerInBackground(context, callback);
     }
 
+    public void setGcmTags(List<String> tags) {
+        if (!Baas.io().isGcmEnabled()) {
+            LogUtils.LOGI(TAG, BaasioError.ERROR_GCM_DISABLED);
+        }
+
+        for (String tag : tags) {
+            if (tag.length() > 36) {
+                throw new IllegalArgumentException(BaasioError.ERROR_GCM_TAG_LENGTH_EXCEED);
+            }
+
+            Pattern pattern = Pattern.compile(BaasioPush.TAG_REGEXP);
+            if (!pattern.matcher(tag).matches()) {
+                throw new IllegalArgumentException(BaasioError.ERROR_GCM_TAG_PATTERN_MISS_MATCHED);
+            }
+        }
+
+        BaasioPreferences.setNeedRegisteredTags(applicationContext, tags);
+    }
     /**
      * This method must be placed in Application.onDestroy()
      * 

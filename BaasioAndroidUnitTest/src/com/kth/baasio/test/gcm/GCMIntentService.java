@@ -16,10 +16,12 @@
 
 package com.kth.baasio.test.gcm;
 
-import static com.kth.common.utils.LogUtils.LOGE;
-import static com.kth.common.utils.LogUtils.LOGI;
-import static com.kth.common.utils.LogUtils.LOGW;
-import static com.kth.common.utils.LogUtils.makeLogTag;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
+import android.support.v4.app.NotificationCompat;
 
 import com.google.android.gcm.GCMBaseIntentService;
 import com.kth.baasio.entity.push.BaasioPayload;
@@ -35,22 +37,19 @@ import com.kth.baasio.utils.JsonUtils;
 import com.kth.baasio.utils.ObjectUtils;
 import com.kth.common.utils.LogUtils;
 
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.content.Context;
-import android.content.Intent;
-import android.support.v4.app.NotificationCompat;
-
 import java.util.Random;
 import java.util.UUID;
+
+import static com.kth.common.utils.LogUtils.LOGE;
+import static com.kth.common.utils.LogUtils.LOGI;
+import static com.kth.common.utils.LogUtils.LOGW;
 
 /**
  * {@link android.app.IntentService} responsible for handling GCM messages.
  */
 public class GCMIntentService extends GCMBaseIntentService {
 
-    private static final String TAG = makeLogTag("GCM");
+    private static final String TAG = LogUtils.makeLogTag("GCM");
 
     private static final int TRIGGER_SYNC_MAX_JITTER_MILLIS = 3 * 60 * 1000; // 3
                                                                              // minutes
@@ -63,25 +62,23 @@ public class GCMIntentService extends GCMBaseIntentService {
 
     @Override
     protected void onRegistered(Context context, String regId) {
-        LOGI(TAG, "Device registered: regId=" + regId);
+        LogUtils.LOGI(TAG, "Device registered: regId=" + regId);
 
         try {
             BaasioPush.register(context, regId);
         } catch (BaasioException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            LogUtils.LOGI(TAG, e.toString());
         }
     }
 
     @Override
     protected void onUnregistered(Context context, String regId) {
-        LOGI(TAG, "Device unregistered");
+        LogUtils.LOGI(TAG, "Device unregistered");
 
         try {
             BaasioPush.unregister(context);
         } catch (BaasioException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            LogUtils.LOGI(TAG, e.toString());
         }
     }
 
@@ -89,7 +86,6 @@ public class GCMIntentService extends GCMBaseIntentService {
     protected void onMessage(Context context, Intent intent) {
         String announcement = intent.getStringExtra("message");
         if (announcement != null) {
-            // displayNotification(context, announcement);
             generateNotification(context, announcement);
             return;
         }
@@ -163,13 +159,13 @@ public class GCMIntentService extends GCMBaseIntentService {
 
     @Override
     public void onError(Context context, String errorId) {
-        LOGE(TAG, "Received error: " + errorId);
+        LogUtils.LOGE(TAG, "Received error: " + errorId);
     }
 
     @Override
     protected boolean onRecoverableError(Context context, String errorId) {
         // log message
-        LOGW(TAG, "Received recoverable error: " + errorId);
+        LogUtils.LOGW(TAG, "Received recoverable error: " + errorId);
         return super.onRecoverableError(context, errorId);
     }
 }

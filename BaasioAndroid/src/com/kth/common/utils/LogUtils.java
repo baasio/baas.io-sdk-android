@@ -16,12 +16,12 @@
 
 package com.kth.common.utils;
 
-import com.kth.baasio.BuildConfig;
-import com.kth.baasio.utils.ObjectUtils;
-
 import android.content.Context;
 import android.os.Environment;
 import android.util.Log;
+
+import com.kth.baasio.BuildConfig;
+import com.kth.baasio.utils.ObjectUtils;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -77,7 +77,7 @@ public final class LogUtils {
 
     public static void LOGV(final String tag, String message) {
         // noinspection PointlessBooleanExpression,ConstantConditions
-        if (BuildConfig.DEBUG && Log.isLoggable(tag, Log.VERBOSE)) {
+        if (BuildConfig.SDK_DEBUG && Log.isLoggable(tag, Log.VERBOSE)) {
             Log.v(tag, message);
 
             appendLog(tag, message);
@@ -86,7 +86,7 @@ public final class LogUtils {
 
     public static void LOGV(final String tag, String message, Throwable cause) {
         // noinspection PointlessBooleanExpression,ConstantConditions
-        if (BuildConfig.DEBUG && Log.isLoggable(tag, Log.VERBOSE)) {
+        if (BuildConfig.SDK_DEBUG && Log.isLoggable(tag, Log.VERBOSE)) {
             Log.v(tag, message, cause);
 
             appendLog(tag, message, cause);
@@ -151,7 +151,7 @@ public final class LogUtils {
     }
 
     public static void appendLog(String tag, String text, Throwable cause) {
-        if (!BuildConfig.DEBUG) {
+        if (!BuildConfig.SDK_DEBUG) {
             return;
         }
 

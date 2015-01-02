@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.kth.baasio.test"
     android:versionCode="5"
     android:versionName="0.8.5" >
@@ -39,10 +40,11 @@
           services and handle them to the custom IntentService.
 
           The com.google.android.c2dm.permission.SEND permission is necessary
-          so only GCM services can send data messages for the app.
+          so only GCM services can send data messages for the app.
+
         -->
         <receiver
-            android:name="com.kth.baasio.test.gcm.GCMRedirectedBroadcastReceiver"
+            android:name=".gcm.GCMRedirectedBroadcastReceiver"
             android:permission="com.google.android.c2dm.permission.SEND" >
             <intent-filter>
 
@@ -51,7 +53,13 @@
                 <!-- Receives the registration id. -->
                 <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
 
-                <category android:name="com.kth.baasio.test" />
+                <category android:name="com.kth.baasio.sample" />
+            </intent-filter>
+        </receiver>
+        <receiver android:name="com.kth.baasio.gcm.GCMUpdateReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.PACKAGE_REPLACED" />
+                <data tools:replace="android:path" android:path="com.kth.baasio.test" />
             </intent-filter>
         </receiver>
 
@@ -60,9 +68,10 @@
           handle received messages.
 
           By default, it must be named .GCMIntentService, unless the
-          application uses a custom BroadcastReceiver that redefines its name.
+          application uses a custom BroadcastReceiver that redefines its name.
+
         -->
-        <service android:name="com.kth.baasio.test.gcm.GCMIntentService" />
+        <service android:name=".gcm.GCMIntentService" />
 
         <activity
             android:name="com.kth.baasio.test.MainActivity"

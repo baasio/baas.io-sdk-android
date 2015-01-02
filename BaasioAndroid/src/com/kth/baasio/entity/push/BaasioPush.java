@@ -1,6 +1,9 @@
 
 package com.kth.baasio.entity.push;
 
+import android.content.Context;
+import android.text.TextUtils;
+
 import com.google.android.gcm.GCMRegistrar;
 import com.kth.baasio.Baas;
 import com.kth.baasio.BuildConfig;
@@ -18,15 +21,11 @@ import com.kth.common.utils.LogUtils;
 
 import org.springframework.http.HttpMethod;
 
-import android.content.Context;
-import android.text.TextUtils;
-
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 import java.util.Random;
-import java.util.regex.Pattern;
 
 public class BaasioPush {
 
@@ -44,37 +43,25 @@ public class BaasioPush {
 
     private static final Random sRandom = new Random();
 
-    private static final String TAG_REGEXP = "^[a-zA-Z0-9-_]*$";
+    public static final String TAG_REGEXP = "^[a-zA-Z0-9-_]*$";
 
-    static List<String> getTagList(String tagString) {
-        List<String> result = new ArrayList<String>();
 
-        String[] tags = tagString.split("\\,");
-        for (String tag : tags) {
-            tag = tag.toLowerCase(Locale.getDefault()).trim();
-            if (!ObjectUtils.isEmpty(tag)) {
-                result.add(tag);
-            }
-        }
-
-        return result;
-    }
 
     public BaasioPush() {
 
     }
 
     private static boolean needRegister(Context context, String signedInUsername, String regId,
-            String oldRegId, String newTags) {
+            String oldRegId, List<String> newTags) {
         boolean bResult = true;
 
         if (GCMRegistrar.isRegisteredOnServer(context)) {
             String registeredUsername = BaasioPreferences.getRegisteredUserName(context);
 
             if (registeredUsername.equals(signedInUsername)) {
-                String curTags = BaasioPreferences.getRegisteredTags(context);
+                List<String> curTags = BaasioPreferences.getRegisteredTags(context);
 
-                if (curTags.equals(newTags)) {
+                if (compareArrays(curTags, newTags)) {
                     if (oldRegId.equals(regId)) {
                         LogUtils.LOGV(TAG, "BaasioPush.register() called but already registered.");
                         bResult = false;
@@ -98,9 +85,26 @@ public class BaasioPush {
         return bResult;
     }
 
-    public static BaasioDevice register(Context context, String regId) throws BaasioException {
+    public synchronized static BaasioDevice register(Context context, String regId) throws BaasioException {
         if (!Baas.io().isGcmEnabled()) {
             throw new BaasioException(BaasioError.ERROR_GCM_DISABLED);
+        }
+
+        BaasioPreferences.setRegisteredSenderId(context, Baas.io().getGcmSenderId());
+
+        return register(context);
+    }
+
+    public synchronized static BaasioDevice register(Context context) throws BaasioException {
+        if (!Baas.io().isGcmEnabled()) {
+            throw new BaasioException(BaasioError.ERROR_GCM_DISABLED);
+        }
+
+        String regId = GCMRegistrar.getRegistrationId(context);
+
+        if (needRegisterSenderId(context, regId)) {
+            GCMRegistrar.register(context, Baas.io().getGcmSenderId());
+            throw new BaasioException(BaasioError.ERROR_GCM_REGISTERING_SENDER_ID);
         }
 
         GCMRegistrar.checkDevice(context);
@@ -114,7 +118,7 @@ public class BaasioPush {
             signedInUsername = Baas.io().getSignedInUser().getUsername();
         }
 
-        String newTags = BaasioPreferences.getNeedRegisteredTags(context);
+        List<String> newTags = BaasioPreferences.getNeedRegisteredTags(context);
         String oldRegId = BaasioPreferences.getRegisteredRegId(context);
 
         if (!needRegister(context, signedInUsername, regId, oldRegId, newTags)) {
@@ -136,11 +140,7 @@ public class BaasioPush {
         }
 
         device.setToken(regId);
-
-        String tagString = BaasioPreferences.getNeedRegisteredTags(context);
-        List<String> tags = getTagList(tagString);
-
-        device.setTags(tags);
+        device.setTags(newTags);
 
         long backoff = BACKOFF_MILLIS + sRandom.nextInt(1000);
         REG_STATE eREG_STATE = REG_STATE.CREATE_DEVICE;
@@ -202,18 +202,13 @@ public class BaasioPush {
                 if (response != null) {
                     BaasioDevice entity = response.getFirstEntity().toType(BaasioDevice.class);
                     if (!ObjectUtils.isEmpty(entity)) {
-                        BaasioPreferences
-                                .setRegisteredSenderId(context, Baas.io().getGcmSenderId());
                         GCMRegistrar.setRegisteredOnServer(context, true);
 
-                        BaasioPreferences.setRegisteredTags(context, tagString);
                         BaasioPreferences.setRegisteredUserName(context, signedInUsername);
 
-                        String newDeviceUuid = entity.getUuid().toString();
-
-                        BaasioPreferences.setDeviceUuidForPush(context, newDeviceUuid);
-
-                        BaasioPreferences.setRegisteredRegId(context, regId);
+                        BaasioPreferences.setRegisteredTags(context, entity.getTags());
+                        BaasioPreferences.setDeviceUuidForPush(context, entity.getUuid().toString());
+                        BaasioPreferences.setRegisteredRegId(context, entity.getToken());
                         return entity;
                     }
 
@@ -309,7 +304,11 @@ public class BaasioPush {
         return null;
     }
 
-    private static boolean compareArrays(String[] arr1, String[] arr2) {
+    static boolean compareArrays(String[] arr1, String[] arr2) {
+        if (ObjectUtils.isEmpty(arr1) && ObjectUtils.isEmpty(arr2)) {
+            return true;
+        }
+
         if (ObjectUtils.isEmpty(arr1) || ObjectUtils.isEmpty(arr2)) {
             return false;
         }
@@ -317,6 +316,20 @@ public class BaasioPush {
         Arrays.sort(arr1);
         Arrays.sort(arr2);
         return Arrays.equals(arr1, arr2);
+    }
+
+    static boolean compareArrays(List<String> arr1, List<String> arr2) {
+        if (ObjectUtils.isEmpty(arr1) && ObjectUtils.isEmpty(arr2)) {
+            return true;
+        }
+
+        if (ObjectUtils.isEmpty(arr1) || ObjectUtils.isEmpty(arr2)) {
+            return false;
+        }
+
+        Collections.sort(arr1);
+        Collections.sort(arr2);
+        return arr1.equals(arr2);
     }
 
     private static boolean needRegisterSenderId(Context context, String regId) {
@@ -334,17 +347,8 @@ public class BaasioPush {
         return false;
     }
 
-    /**
-     * Register device. If server is not available(HTTP status 5xx), it will
-     * retry 5 times. Executes asynchronously in background and the callbacks
-     * are called in the UI thread.
-     * 
-     * @param context Context
-     * @param callback GCM registration result callback
-     * @return registration task
-     */
     public static BaasioDeviceAsyncTask registerInBackground(final Context context,
-            final BaasioDeviceCallback callback) {
+                                                             final BaasioDeviceCallback callback) {
         if (!Baas.io().isGcmEnabled()) {
             if (callback != null) {
                 callback.onException(new BaasioException(BaasioError.ERROR_GCM_DISABLED));
@@ -352,62 +356,18 @@ public class BaasioPush {
             return null;
         }
 
-        final String regId = GCMRegistrar.getRegistrationId(context);
-
-        if (needRegisterSenderId(context, regId)) {
-            GCMRegistrar.register(context, Baas.io().getGcmSenderId());
-        } else {
-            BaasioDeviceAsyncTask task = new BaasioDeviceAsyncTask(callback) {
-                @Override
-                public BaasioDevice doTask() throws BaasioException {
-                    BaasioDevice device = register(context, regId);
-                    if (ObjectUtils.isEmpty(device)) {
-                        GCMRegistrar.unregister(context);
-                    }
-                    return device;
+        BaasioDeviceAsyncTask task = new BaasioDeviceAsyncTask(callback) {
+            @Override
+            public BaasioDevice doTask() throws BaasioException {
+                BaasioDevice device = register(context);
+                if (ObjectUtils.isEmpty(device)) {
+                    GCMRegistrar.unregister(context);
                 }
-            };
-            task.execute();
-            return task;
-        }
-
-        return null;
-    }
-
-    /**
-     * Register device with tags. If server is not available(HTTP status 5xx),
-     * it will retry 5 times. Executes asynchronously in background and the
-     * callbacks are called in the UI thread.
-     * 
-     * @param context Context
-     * @param tags Tags. The max length of each tag is 36.
-     * @param callback GCM registration result callback
-     * @return registration task
-     */
-    public static BaasioDeviceAsyncTask registerWithTagsInBackground(final Context context,
-            String tags, final BaasioDeviceCallback callback) {
-        if (!Baas.io().isGcmEnabled()) {
-            if (callback != null) {
-                callback.onException(new BaasioException(BaasioError.ERROR_GCM_DISABLED));
+                return device;
             }
-            return null;
-        }
-
-        List<String> tagList = getTagList(tags);
-        for (String tag : tagList) {
-            if (tag.length() > 36) {
-                throw new IllegalArgumentException(BaasioError.ERROR_GCM_TAG_LENGTH_EXCEED);
-            }
-
-            Pattern pattern = Pattern.compile(TAG_REGEXP);
-            if (!pattern.matcher(tag).matches()) {
-                throw new IllegalArgumentException(BaasioError.ERROR_GCM_TAG_PATTERN_MISS_MATCHED);
-            }
-        }
-
-        BaasioPreferences.setNeedRegisteredTags(context, tags);
-
-        return registerInBackground(context, callback);
+        };
+        task.execute();
+        return task;
     }
 
     /**
@@ -416,10 +376,6 @@ public class BaasioPush {
      * @param context Context
      */
     public static BaasioResponse unregister(Context context) throws BaasioException {
-        if (!Baas.io().isGcmEnabled()) {
-            throw new BaasioException(BaasioError.ERROR_GCM_DISABLED);
-        }
-
         if (!GCMRegistrar.isRegisteredOnServer(context)) {
             throw new BaasioException(BaasioError.ERROR_GCM_ALREADY_UNREGISTERED);
         }
@@ -428,9 +384,9 @@ public class BaasioPush {
         String oldRegId = BaasioPreferences.getRegisteredRegId(context);
 
         BaasioPreferences.setDeviceUuidForPush(context, "");
-        BaasioPreferences.setNeedRegisteredTags(context, "");
+        BaasioPreferences.setNeedRegisteredTags(context, new ArrayList<String>());
         BaasioPreferences.setRegisteredUserName(context, "");
-        BaasioPreferences.setRegisteredTags(context, "");
+        BaasioPreferences.setRegisteredTags(context, new ArrayList<String>());
         BaasioPreferences.setRegisteredRegId(context, "");
 
         GCMRegistrar.setRegisteredOnServer(context, false);
@@ -474,12 +430,6 @@ public class BaasioPush {
      */
     public static void unregisterInBackground(final Context context,
             final BaasioResponseCallback callback) {
-        if (!Baas.io().isGcmEnabled()) {
-            if (callback != null) {
-                callback.onException(new BaasioException(BaasioError.ERROR_GCM_DISABLED));
-            }
-            return;
-        }
 
         (new BaasioAsyncTask<BaasioResponse>(callback) {
             @Override

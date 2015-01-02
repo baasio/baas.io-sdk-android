@@ -58,6 +58,8 @@ public final class BaasioError {
 
     public static final String ERROR_GCM_DISABLED = "GCM is disabled.";
 
+    public static final String ERROR_GCM_REGISTERING_SENDER_ID = "Registering sender id. Wait for registering sender id.";
+
     public static final String ERROR_GCM_ALREADY_REGISTERED = "GCM is already registered";
 
     public static final String ERROR_GCM_ALREADY_UNREGISTERED = "GCM is already unregistered";
